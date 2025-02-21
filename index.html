@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developer Portfolio</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="#about" data-en="About" data-fr="À propos">About</a></li>
+          <li><a href="#skills" data-en="Skills" data-fr="Compétences">Skills</a></li>
+          <li><a href="#projects" data-en="Projects" data-fr="Projets">Projects</a></li>
+          <li><a href="#contact" data-en="Contact" data-fr="Contact">Contact</a></li>
+        </ul>
+      </nav>
+      <button id="langToggle" class="lang-toggle">FR</button>
+    </header>
+
+    <main>
+      <section id="hero">
+        <div class="container">
+          <div class="profile-container">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=faces" alt="Profile picture" class="profile-image">
+          </div>
+          <h1 data-en="Software Developer" data-fr="Développeur Logiciel">Software Developer</h1>
+          <p class="subtitle" data-en="Bachelor of Information Technology" data-fr="Baccalauréat en Technologie de l'Information">Bachelor of Information Technology</p>
+          <p class="school">École de technologie supérieure (ÉTS), Montreal</p>
+        </div>
+      </section>
+
+      <section id="about">
+        <div class="container">
+          <h2 data-en="About Me" data-fr="À propos de moi">About Me</h2>
+          <p data-en="I am a soon-to-be graduate from ÉTS Montreal with a Bachelor's degree in Information Technology. Passionate about creating efficient and user-friendly software solutions, I combine technical expertise with creative problem-solving skills."
+             data-fr="Je suis un futur diplômé de l'ÉTS Montréal avec un baccalauréat en technologie de l'information. Passionné par la création de solutions logicielles efficaces et conviviales, je combine expertise technique et résolution créative de problèmes.">
+            I am a soon-to-be graduate from ÉTS Montreal with a Bachelor's degree in Information Technology. Passionate about creating efficient and user-friendly software solutions, I combine technical expertise with creative problem-solving skills.
+          </p>
+        </div>
+      </section>
+
+      <section id="skills">
+        <div class="container">
+          <h2 data-en="Technical Skills" data-fr="Compétences Techniques">Technical Skills</h2>
+          <div class="skills-grid">
+            <div class="skill-category">
+              <h3 data-en="Languages" data-fr="Langages">Languages</h3>
+              <ul>
+                <li>JavaScript</li>
+                <li>Python</li>
+                <li>Java</li>
+                <li>C++</li>
+              </ul>
+            </div>
+            <div class="skill-category">
+              <h3 data-en="Web Technologies" data-fr="Technologies Web">Web Technologies</h3>
+              <ul>
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>React</li>
+                <li>Node.js</li>
+              </ul>
+            </div>
+            <div class="skill-category">
+              <h3 data-en="Tools" data-fr="Outils">Tools</h3>
+              <ul>
+                <li>Git</li>
+                <li>Docker</li>
+                <li>VS Code</li>
+                <li>Linux</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="container">
+          <h2 data-en="Projects" data-fr="Projets">Projects</h2>
+          <div class="projects-grid">
+            <div class="project-card">
+              <div class="project-image" style="background-image: url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop')"></div>
+              <h3>Project 1</h3>
+              <p data-en="Description of your first project. Click to learn more."
+                 data-fr="Description de votre premier projet. Cliquez pour en savoir plus.">
+                Description of your first project. Click to learn more.
+              </p>
+            </div>
+            <div class="project-card">
+              <div class="project-image" style="background-image: url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop')"></div>
+              <h3>Project 2</h3>
+              <p data-en="Description of your second project. Click to learn more."
+                 data-fr="Description de votre deuxième projet. Cliquez pour en savoir plus.">
+                Description of your second project. Click to learn more.
+              </p>
+            </div>
+            <div class="project-card">
+              <div class="project-image" style="background-image: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=400&fit=crop')"></div>
+              <h3>Project 3</h3>
+              <p data-en="Description of your third project. Click to learn more."
+                 data-fr="Description de votre troisième projet. Cliquez pour en savoir plus.">
+                Description of your third project. Click to learn more.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="container">
+          <h2 data-en="Contact Me" data-fr="Me Contacter">Contact Me</h2>
+          <div class="contact-form">
+            <form id="contactForm">
+              <div class="form-group">
+                <input type="text" id="name" data-placeholder-en="Your Name" data-placeholder-fr="Votre Nom" placeholder="Your Name" required>
+              </div>
+              <div class="form-group">
+                <input type="email" id="email" data-placeholder-en="Your Email" data-placeholder-fr="Votre Email" placeholder="Your Email" required>
+              </div>
+              <div class="form-group">
+                <textarea id="message" data-placeholder-en="Your Message" data-placeholder-fr="Votre Message" placeholder="Your Message" required></textarea>
+              </div>
+              <button type="submit" data-en="Send Message" data-fr="Envoyer le Message">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p data-en="© 2024 | Made with ❤️ in Montreal" data-fr="© 2024 | Fait avec ❤️ à Montréal">© 2024 | Made with ❤️ in Montreal</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
