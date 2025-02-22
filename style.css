@@ -1,8 +1,8 @@
 :root {
-  --primary-color: #2563eb;
-  --text-color: #1f2937;
-  --bg-color: #ffffff;
-  --section-bg: #f3f4f6;
+  --primary-color: #93c5fd; /* Light blue for emphasis in dark mode */
+  --text-color: #d1d5db; /* Light gray for text */
+  --bg-color: #111827; /* Dark gray background */
+  --section-bg: #1f2937; /* Slightly lighter dark gray for sections */
   --header-height: 4rem;
 }
 
@@ -36,9 +36,9 @@ header {
   left: 0;
   right: 0;
   height: var(--header-height);
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(17, 24, 39, 0.95); /* Dark background with slight transparency */
   backdrop-filter: blur(5px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Light border */
   z-index: 1000;
   display: flex;
   justify-content: space-between;
@@ -69,7 +69,7 @@ nav a:hover {
 /* Language Toggle Button */
 .lang-toggle {
   background-color: var(--primary-color);
-  color: white;
+  color: #000000; /* Black text on light blue */
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
@@ -79,7 +79,7 @@ nav a:hover {
 }
 
 .lang-toggle:hover {
-  background-color: #1d4ed8;
+  background-color: #60a5fa; /* Slightly darker light blue */
 }
 
 /* Hero Section */
@@ -89,7 +89,7 @@ nav a:hover {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%); /* Darker gradient */
 }
 
 .profile-container {
@@ -100,8 +100,8 @@ nav a:hover {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  border: 4px solid white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 4px solid #374151; /* Dark border */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Increased shadow for dark mode */
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -124,7 +124,7 @@ nav a:hover {
 
 .school {
   font-size: 1.25rem;
-  color: #4b5563;
+  color: #9ca3af; /* Light gray */
 }
 
 /* Sections */
@@ -140,6 +140,7 @@ h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
   text-align: center;
+  color: var(--primary-color); /* Light blue headings */
 }
 
 /* Skills Section */
@@ -151,10 +152,11 @@ h2 {
 }
 
 .skill-category {
-  background: white;
+  background: #374151; /* Dark background for skill categories */
   padding: 2rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Increased shadow */
+  color: var(--text-color);
 }
 
 .skill-category h3 {
@@ -179,12 +181,13 @@ h2 {
 }
 
 .project-card {
-  background: white;
+  background: #374151; /* Dark background for project cards */
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Increased shadow */
   transition: transform 0.3s ease;
   cursor: pointer;
   overflow: hidden;
+  color: var(--text-color);
 }
 
 .project-image {
@@ -226,9 +229,11 @@ input,
 textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #4b5563; /* Darker border */
   border-radius: 0.375rem;
   font-size: 1rem;
+  background-color: #374151; /* Dark background for inputs */
+  color: var(--text-color);
 }
 
 textarea {
@@ -238,7 +243,7 @@ textarea {
 
 button {
   background-color: var(--primary-color);
-  color: white;
+  color: #000000; /* Black text on light blue */
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -248,13 +253,13 @@ button {
 }
 
 button:hover {
-  background-color: #1d4ed8;
+  background-color: #60a5fa; /* Slightly darker light blue */
 }
 
 /* Footer */
 footer {
-  background-color: var(--text-color);
-  color: white;
+  background-color: #030712; /* Very dark background */
+  color: #d1d5db; /* Light gray */
   padding: 2rem 0;
   text-align: center;
 }
