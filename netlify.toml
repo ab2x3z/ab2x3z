@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/cheepchoop/*"
+  to = "/cheepchoop.html"
+  status = 200
