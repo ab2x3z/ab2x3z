@@ -16,14 +16,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.render(scene, camera);
 
 const geometrySphere = new THREE.SphereGeometry(5, 32, 32);
-const rockMap = new THREE.TextureLoader().load('assets/player/Rock020_1K-JPG_Color.jpg')
-const rockNormalMap = new THREE.TextureLoader().load('assets/player/Rock020_1K-JPG_NormalGL.jpg')
+const rockMap = new THREE.TextureLoader().load('/assets/player/Rock020_1K-JPG_Color.jpg')
+const rockNormalMap = new THREE.TextureLoader().load('/assets/player/Rock020_1K-JPG_NormalGL.jpg')
 const materialSphere = new THREE.MeshStandardMaterial({ map: rockMap, normalMap: rockNormalMap });
 const sphere = new THREE.Mesh(geometrySphere, materialSphere);
 
 const geometryPlane = new THREE.PlaneGeometry(5000, 5000, 500, 500); // Increased size
-const grassMap = new THREE.TextureLoader().load('assets/ground/Grass001_1K-JPG_Color.jpg');
-const grassNormalMap = new THREE.TextureLoader().load('assets/ground/Grass001_1K-JPG_NormalGL.jpg');
+const grassMap = new THREE.TextureLoader().load('/assets/ground/Grass001_1K-JPG_Color.jpg');
+const grassNormalMap = new THREE.TextureLoader().load('/assets/ground/Grass001_1K-JPG_NormalGL.jpg');
 
 // Texture repeating to prevent stretching
 grassMap.wrapS = THREE.RepeatWrapping;
@@ -49,7 +49,7 @@ scene.add(ambientLight);
 // pointLight.position.set(0, 200, 0);
 // scene.add(pointLight);
 
-const skybox = new THREE.TextureLoader().load('assets/field-with-clouds.jpg');
+const skybox = new THREE.TextureLoader().load('/assets/field-with-clouds.jpg');
 scene.background = skybox;
 
 // const lightHelper = new THREE.PointLightHelper(pointLight);
