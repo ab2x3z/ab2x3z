@@ -53,9 +53,9 @@ let lastPlatformPosition = new THREE.Vector3(0, 0, 0); // Store the position of 
 // Wood level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(69 + (Math.random() * 34.5 - 10), 3, 69 + (Math.random() * 34.5 - 10));
-    const brickMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_Color.jpg')
-    const brickNormalMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_NormalGL.jpg')
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
+    const plankMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_Color.jpg')
+    const plankNormalMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_NormalGL.jpg')
+    const materialPlatform = new THREE.MeshStandardMaterial({ map: plankMap, normalMap: plankNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
     // Name the platform to differentiate for the sound
@@ -117,9 +117,9 @@ for (let i = 0; i < 10; i++) {
 // Sand level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(40 + (Math.random() * 20 - 10), 3, 40 + (Math.random() * 20 - 10));
-    const brickMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_Color.jpg')
-    const brickNormalMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_NormalGL.jpg')
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
+    const sandMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_Color.jpg')
+    const sandNormalMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_NormalGL.jpg')
+    const materialPlatform = new THREE.MeshStandardMaterial({ map: sandMap, normalMap: sandNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
     // Name the platform to differentiate for the sound
@@ -145,6 +145,72 @@ for (let i = 0; i < 10; i++) {
     platforms.push(platform);
     lastPlatformPosition.copy(newPosition);
 }
+
+// Marble level
+for (let i = 0; i < 10; i++) {
+    const geometryPlatform = new THREE.BoxGeometry(30 + (Math.random() * 15 - 10), 3, 30 + (Math.random() * 15 - 10));
+    const marbleMap = new THREE.TextureLoader().load('assets/platforms/Marble012_1K-JPG_Color.jpg')
+    const marbleNormalMap = new THREE.TextureLoader().load('assets/platforms/Marble012_1K-JPG_NormalGL.jpg')
+    const materialPlatform = new THREE.MeshStandardMaterial({ map: marbleMap, normalMap: marbleNormalMap });
+    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
+
+    // Name the platform to differentiate for the sound
+    platform.name = 'marble';
+
+    let newPosition = new THREE.Vector3();
+    newPosition.y = lastPlatformPosition.y + 69;
+
+    // Random Position on the perimeter of a circle with a radius of 69.
+    let angle = Math.random() * 2 * Math.PI;
+    let horizontalOffset = new THREE.Vector3(
+        Math.cos(angle) * 69,
+        0,
+        Math.sin(angle) * 69
+    );
+
+    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
+    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
+
+    platform.position.copy(newPosition);
+
+
+    platforms.push(platform);
+    lastPlatformPosition.copy(newPosition);
+}
+
+// Obsidian level
+for (let i = 0; i < 10; i++) {
+    const geometryPlatform = new THREE.BoxGeometry(20 + (Math.random() * 10 - 10), 3, 20 + (Math.random() * 10 - 10));
+    const obsidianMap = new THREE.TextureLoader().load('assets/platforms/Obsidian006_1K-JPG_Color.jpg')
+    const obsidianNormalMap = new THREE.TextureLoader().load('assets/platforms/Obsidian006_1K-JPG_NormalGL.jpg')
+    const materialPlatform = new THREE.MeshStandardMaterial({ map: obsidianMap, normalMap: obsidianNormalMap });
+    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
+
+    // Name the platform to differentiate for the sound
+    platform.name = 'obsidian';
+
+    let newPosition = new THREE.Vector3();
+    newPosition.y = lastPlatformPosition.y + 69;
+
+    // Random Position on the perimeter of a circle with a radius of 69.
+    let angle = Math.random() * 2 * Math.PI;
+    let horizontalOffset = new THREE.Vector3(
+        Math.cos(angle) * 69,
+        0,
+        Math.sin(angle) * 69
+    );
+
+    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
+    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
+
+    platform.position.copy(newPosition);
+
+
+    platforms.push(platform);
+    lastPlatformPosition.copy(newPosition);
+}
+
+
 
 // ******************************  Add elements to scene  ******************************
 scene.add(sphere, plane);
@@ -381,6 +447,24 @@ function move() {
                         landPlatformSound.play();
                         // Display the current level
                         document.getElementById('currentLevel').textContent = 'Sand';
+                        break;
+
+                    case 'marble':
+                        // Play sound
+                        landPlatformSound = new Audio("assets/sounds/se_common_landing_marble.wav");
+                        landPlatformSound.volume = 0.2;
+                        landPlatformSound.play();
+                        // Display the current level
+                        document.getElementById('currentLevel').textContent = 'Marble';
+                        break;
+
+                    case 'obsidian':
+                        // Play sound
+                        landPlatformSound = new Audio("assets/sounds/se_common_landing_obsidian.wav");
+                        landPlatformSound.volume = 0.2;
+                        landPlatformSound.play();
+                        // Display the current level
+                        document.getElementById('currentLevel').textContent = 'Obsidian';
                         break;
 
                     default:
