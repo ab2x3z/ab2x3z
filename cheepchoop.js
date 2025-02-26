@@ -3,11 +3,8 @@ import * as THREE from 'three';
 
 if (/Mobi|Android/i.test(navigator.userAgent)) {
     console.log(navigator.userAgent);
-    // Optionally:  Set a global flag to prevent further initialization
-    window.cheepChoopEnabled = false; // Example
 } else {
     console.log('no problems');
-    window.cheepChoopEnabled = true;
 }
 
 const scene = new THREE.Scene();

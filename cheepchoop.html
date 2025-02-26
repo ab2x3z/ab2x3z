@@ -18,6 +18,7 @@
 
   <canvas id="bg"></canvas>
 
+  <!-- <script type="module" src="cheepchoop.js"></script> -->
   <script>
     function isMobileDevice() {
       return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
@@ -26,7 +27,7 @@
     if (true) {
       // Only load the script if it's not a mobile device
       const script = document.createElement('script');
-      script.src = 'cheepchoop.js';
+      script.src = './cheepchoop.js';
       script.type = 'module';
       document.body.appendChild(script);
     } else {
