@@ -508,6 +508,8 @@ function move() {
         grounded = true;
     }
 
+    // Update the player height display
+    document.getElementById('currentHeight').textContent = sphere.position.y.toFixed(2);
 
     // Adjust camera to follow the player
     const cameraOffset = new THREE.Vector3(0, 10, 30);
@@ -517,7 +519,13 @@ function move() {
     camera.position.copy(sphere.position).add(cameraOffset);
     camera.lookAt(sphere.position);
 
+    // Teleport if too far from origin
+    if (grounded && sphere.position.distanceTo(new THREE.Vector3(0, sphere.position.y, 0)) > 100) {
+        sphere.position.set(0, -10 + sphereRadius, 0);
+        momentum.set(0, 0, 0);
+    }
 }
+
 
 function animate() {
     requestAnimationFrame(animate);
