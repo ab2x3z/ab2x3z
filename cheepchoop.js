@@ -1,4 +1,3 @@
-import '/cheepchoop.css'
 import * as THREE from 'three';
 
 if (/Mobi|Android/i.test(navigator.userAgent)) {
