@@ -43,18 +43,102 @@ plane.rotateX(Math.PI * 1.5); plane.position.y = -10;
 
 // ******************************  Create Platforms  ******************************
 const platforms = [];
+let lastPlatformPosition = new THREE.Vector3(0, 0, 0); // Store the position of the last platform
 
+// Wood level
 for (let i = 0; i < 10; i++) {
-    const geometryPlatform = new THREE.BoxGeometry(50, 3, 50);
+    const geometryPlatform = new THREE.BoxGeometry(69 + (Math.random() * 34.5 - 10), 3, 69 + (Math.random() * 34.5 - 10));
+    const brickMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_Color.jpg')
+    const brickNormalMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_NormalGL.jpg')
+    const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
+    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
+
+    // Name the platform to differentiate for the sound
+    platform.name = 'wood';
+
+    let newPosition = new THREE.Vector3();
+    newPosition.y = lastPlatformPosition.y + 69;
+
+    // Random Position on the perimeter of a circle with a radius of 69.
+    let angle = Math.random() * 2 * Math.PI;
+    let horizontalOffset = new THREE.Vector3(
+        Math.cos(angle) * 69,
+        0,
+        Math.sin(angle) * 69
+    );
+
+    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
+    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
+
+    platform.position.copy(newPosition);
+
+
+    platforms.push(platform);
+    lastPlatformPosition.copy(newPosition);
+}
+
+// Brick level
+for (let i = 0; i < 10; i++) {
+    const geometryPlatform = new THREE.BoxGeometry(50 + (Math.random() * 25 - 10), 3, 50 + (Math.random() * 25 - 10));
     const brickMap = new THREE.TextureLoader().load('assets/platforms/Bricks076A_1K-JPG_Color.jpg')
     const brickNormalMap = new THREE.TextureLoader().load('assets/platforms/Bricks076A_1K-JPG_NormalGL.jpg')
     const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
-    platform.position.y = i * 20;
-    platform.position.z = ((Math.random() * 2) - 1) * 100;
-    platform.position.x = ((Math.random() * 2) - 1) * 100;
 
-    platforms.push(platform)
+    // Name the platform to differentiate for the sound
+    platform.name = 'brick';
+
+    let newPosition = new THREE.Vector3();
+    newPosition.y = lastPlatformPosition.y + 69;
+
+    // Random Position on the perimeter of a circle with a radius of 69.
+    let angle = Math.random() * 2 * Math.PI;
+    let horizontalOffset = new THREE.Vector3(
+        Math.cos(angle) * 69,
+        0,
+        Math.sin(angle) * 69
+    );
+
+    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
+    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
+
+    platform.position.copy(newPosition);
+
+
+    platforms.push(platform);
+    lastPlatformPosition.copy(newPosition);
+}
+
+// Sand level
+for (let i = 0; i < 10; i++) {
+    const geometryPlatform = new THREE.BoxGeometry(40 + (Math.random() * 20 - 10), 3, 40 + (Math.random() * 20 - 10));
+    const brickMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_Color.jpg')
+    const brickNormalMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_NormalGL.jpg')
+    const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
+    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
+
+    // Name the platform to differentiate for the sound
+    platform.name = 'sand';
+
+    let newPosition = new THREE.Vector3();
+    newPosition.y = lastPlatformPosition.y + 69;
+
+    // Random Position on the perimeter of a circle with a radius of 69.
+    let angle = Math.random() * 2 * Math.PI;
+    let horizontalOffset = new THREE.Vector3(
+        Math.cos(angle) * 69,
+        0,
+        Math.sin(angle) * 69
+    );
+
+    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
+    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
+
+    platform.position.copy(newPosition);
+
+
+    platforms.push(platform);
+    lastPlatformPosition.copy(newPosition);
 }
 
 // ******************************  Add elements to scene  ******************************
@@ -109,7 +193,7 @@ const sphereRadius = sphere.geometry.parameters.radius;
 function checkSphereBoxCollision(sphere, box) {
     const spherePosition = sphere.position.clone();
     const boxPosition = box.position.clone();
-    const boxSize = new THREE.Vector3(25, 1.5, 25); // Half the box size (assuming BoxGeometry is centered)
+    const boxSize = new THREE.Vector3(box.geometry.parameters.width / 2, 1.5, box.geometry.parameters.depth / 2); // Half the box size (assuming BoxGeometry is centered)
 
     // Get box min and max coordinates
     const boxMin = new THREE.Vector3().copy(boxPosition).sub(boxSize);
@@ -234,8 +318,6 @@ function move() {
         sphere.position.add(momentum);
     }
 
-
-
     // Jump
     if (keyIsPressed(' ') && grounded) {
         const jumpSound = new Audio("assets/sounds/se_common_jump.wav");
@@ -265,6 +347,32 @@ function move() {
                     closestPlatformY = platform.position.y;
                 }
                 landedOnPlatformThisFrame = true; // Mark that we landed on a platform
+
+                // Play the sound based on the material
+                let landPlatformSound;
+                switch (platform.name) {
+                    case 'wood':
+                        landPlatformSound = new Audio("assets/sounds/se_common_landing_wood.wav");
+                        landPlatformSound.volume = 0.2;
+                        landPlatformSound.play();
+                        break;
+
+                    case 'brick':
+                        landPlatformSound = new Audio("assets/sounds/se_common_landing_brick.wav");
+                        landPlatformSound.volume = 0.2;
+                        landPlatformSound.play();
+                        break;
+
+                    case 'sand':
+                        landPlatformSound = new Audio("assets/sounds/se_common_landing_sand.wav");
+                        landPlatformSound.volume = 0.2;
+                        landPlatformSound.play();
+                        break;
+
+                    default:
+                        console.log("Invalid platform name");
+                        break;
+                }
             } else if (jumpVelocity == 0) {
                 onPlatform = true;
             }
@@ -275,9 +383,6 @@ function move() {
         // Snap to the closest platform
         sphere.position.y = closestPlatformY + 1.5 + sphereRadius; // Adjust position to sit on platform
         jumpVelocity = 0;
-        const landPlatformSound = new Audio("assets/sounds/se_common_landing_brick.wav");
-        landPlatformSound.volume = 0.2;
-        landPlatformSound.play();
         grounded = true;
     } else if (onGround) {
         // Sphere is on the ground
