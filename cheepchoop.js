@@ -115,6 +115,12 @@ function checkSphereBoxCollision(sphere, box) {
     const boxMin = new THREE.Vector3().copy(boxPosition).sub(boxSize);
     const boxMax = new THREE.Vector3().copy(boxPosition).add(boxSize);
 
+    // Check if the sphere is outside the platform's X and Z bounds
+    if (spherePosition.x < boxMin.x - sphereRadius || spherePosition.x > boxMax.x + sphereRadius ||
+        spherePosition.z < boxMin.z - sphereRadius || spherePosition.z > boxMax.z + sphereRadius) {
+        return false; // Sphere is outside the platform's bounds
+    }
+
     // Get closest point on box to sphere center
     const closestPoint = new THREE.Vector3();
     closestPoint.x = Math.max(boxMin.x, Math.min(spherePosition.x, boxMax.x));
@@ -124,7 +130,7 @@ function checkSphereBoxCollision(sphere, box) {
     // Calculate distance between sphere center and closest point
     const distance = spherePosition.distanceTo(closestPoint);
 
-    return distance < sphereRadius;
+    return distance <= sphereRadius;
 }
 
 // Collision detection function (Sphere - Plane)
@@ -219,7 +225,7 @@ function move() {
     const rotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, rotationAngle);
     sphere.quaternion.premultiply(rotationQuaternion);
 
-    if (grounded){
+    if (grounded) {
         // Update horizontal momentum based on current input.
         momentum.copy(rotatedMoveDirection).multiplyScalar(moveSpeed);
         sphere.position.add(momentum);
@@ -232,6 +238,8 @@ function move() {
 
     // Jump
     if (keyIsPressed(' ') && grounded) {
+        const jumpSound = new Audio("assets/sounds/se_common_jump.wav");
+        jumpSound.volume = 0.2; jumpSound.play();
         jumpVelocity = jumpHeight;
         grounded = false;
     }
@@ -245,6 +253,7 @@ function move() {
     // Collision checks
     let onGround = checkSpherePlaneCollision(sphere, plane); // Check ground collision first
     let landedOnPlatformThisFrame = false; // Track if we just landed on a platform this frame
+    let onPlatform = false;
     let closestPlatformY = -Infinity; // Keep track of the highest platform we are colliding with
 
     platforms.forEach(platform => {
@@ -256,6 +265,8 @@ function move() {
                     closestPlatformY = platform.position.y;
                 }
                 landedOnPlatformThisFrame = true; // Mark that we landed on a platform
+            } else if (jumpVelocity == 0) {
+                onPlatform = true;
             }
         }
     });
@@ -264,13 +275,21 @@ function move() {
         // Snap to the closest platform
         sphere.position.y = closestPlatformY + 1.5 + sphereRadius; // Adjust position to sit on platform
         jumpVelocity = 0;
+        const landPlatformSound = new Audio("assets/sounds/se_common_landing_brick.wav");
+        landPlatformSound.volume = 0.2;
+        landPlatformSound.play();
         grounded = true;
     } else if (onGround) {
         // Sphere is on the ground
         sphere.position.y = -10 + sphereRadius; //Ground level is -10
         jumpVelocity = 0;
+        if (!grounded) {
+            const landPlatformSound = new Audio("assets/sounds/se_common_landing_grass.wav");
+            landPlatformSound.volume = 0.2;
+            landPlatformSound.play();
+        }
         grounded = true;
-    } else {
+    } else if (!onPlatform) {
         // In the air
         grounded = false;
     }
