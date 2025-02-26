@@ -46,6 +46,28 @@ const materialPlane = new THREE.MeshStandardMaterial({ map: grassMap, normalMap:
 const plane = new THREE.Mesh(geometryPlane, materialPlane);
 plane.rotateX(Math.PI * 1.5); plane.position.y = -10;
 
+// ******************************  Create Arrow  ******************************
+const arrowShape = new THREE.Shape();
+arrowShape.moveTo(0, 0);
+arrowShape.lineTo(-3, -6);
+arrowShape.lineTo(-1.5, -6);
+arrowShape.lineTo(-1.5, -15);
+arrowShape.lineTo(1.5, -15);
+arrowShape.lineTo(1.5, -6);
+arrowShape.lineTo(3, -6);
+arrowShape.lineTo(0, 0);
+const extrudeSettings = {
+    steps: 2,
+    depth: 1,
+    bevelEnabled: false,
+};
+
+const arrowGeometry = new THREE.ExtrudeGeometry(arrowShape, extrudeSettings);
+const arrowMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+arrow.position.set(0, 10, -10);
+scene.add(arrow);
+
 // ******************************  Create Platforms  ******************************
 const platforms = [];
 let lastPlatformPosition = new THREE.Vector3(0, 0, 0); // Store the position of the last platform
@@ -399,7 +421,7 @@ function move() {
 
     if (!grounded) {
         jumpVelocity += gravity;
-        if (jumpVelocity < -4) { jumpVelocity = -4; }
+        if (jumpVelocity < -10) { jumpVelocity = -10; }
         sphere.position.y += jumpVelocity;
     }
 
@@ -509,7 +531,8 @@ function move() {
     }
 
     // Update the player height display
-    document.getElementById('currentHeight').textContent = sphere.position.y.toFixed(2);
+    const currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y / 10);
+    document.getElementById('currentHeight').textContent = currentHeight;
 
     // Adjust camera to follow the player
     const cameraOffset = new THREE.Vector3(0, 10, 30);
@@ -520,9 +543,10 @@ function move() {
     camera.lookAt(sphere.position);
 
     // Teleport if too far from origin
-    if (onGround && sphere.position.distanceTo(new THREE.Vector3(0, sphere.position.y, 0)) > 100) {
+    if (onGround && sphere.position.distanceTo(new THREE.Vector3(0, sphere.position.y, 0)) > 500) {
         sphere.position.set(0, -10 + sphereRadius, 0);
         momentum.set(0, 0, 0);
+        sphere.rotation.set(0, 0, 0);
     }
 }
 
@@ -532,7 +556,12 @@ function animate() {
 
     move();
 
+    // Make arrow move
+    const arrowY = 10 + Math.sin((performance.now() * 0.001) * 2) * 2; // Oscillate between 8 and 12
+    arrow.position.y = arrowY;
+
     renderer.render(scene, camera);
 }
+
 
 animate();
