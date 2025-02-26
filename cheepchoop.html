@@ -19,7 +19,11 @@
   <canvas id="bg"></canvas>
 
   <script>
-    if (!/Mobi|Android/i.test(navigator.userAgent)) {
+    function isMobileDevice() {
+      return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+    };
+
+    if (!isMobileDevice()) {
       // Only load the script if it's not a mobile device
       const script = document.createElement('script');
       script.src = '/cheepchoop.js';
