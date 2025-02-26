@@ -1,6 +1,15 @@
 import './cheepchoop.css'
 import * as THREE from 'three';
 
+if (/Mobi|Android/i.test(navigator.userAgent)) {
+    console.log(navigator.userAgent);
+    // Optionally:  Set a global flag to prevent further initialization
+    window.cheepChoopEnabled = false; // Example
+} else {
+    console.log('no problems');
+    window.cheepChoopEnabled = true;
+}
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -397,7 +406,7 @@ function move() {
         // Sphere is on the ground
         sphere.position.y = -10 + sphereRadius; //Ground level is -10
         jumpVelocity = 0;
-        
+
         // Display the current level
         document.getElementById('currentLevel').textContent = 'Ground';
 
