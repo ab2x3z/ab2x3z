@@ -5,36 +5,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CheepChoop</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
   <link rel="stylesheet" href="/cheepchoop.css" />
 </head>
 
 <body>
-  <div id="mobileWarning">
+  <div id="mobile-warning">
     This application is not intended for mobile devices. Please use a desktop browser for the best experience.
   </div>
-
-  <div id="currentLevel"></div>
-
   <canvas id="bg"></canvas>
-
-  <!-- <script type="module" src="cheepchoop.js"></script> -->
+  <div id="currentLevel"></div>
+  <script type="module" src="/cheepchoop.js"></script>
   <script>
-    function isMobileDevice() {
-      return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
-    };
-
-    if (true) {
-      // Only load the script if it's not a mobile device
-      const script = document.createElement('script');
-      script.src = './cheepchoop.js';
-      script.type = 'module';
-      document.body.appendChild(script);
-    } else {
-      document.getElementById('mobileWarning').style.display = 'block';
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      document.getElementById('mobile-warning').style.display = 'block';
     }
   </script>
-
 </body>
-
 </html>
