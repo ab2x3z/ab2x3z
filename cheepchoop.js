@@ -352,21 +352,30 @@ function move() {
                 let landPlatformSound;
                 switch (platform.name) {
                     case 'wood':
+                        // Play sound
                         landPlatformSound = new Audio("assets/sounds/se_common_landing_wood.wav");
                         landPlatformSound.volume = 0.2;
                         landPlatformSound.play();
+                        // Display the current level
+                        document.getElementById('currentLevel').textContent = 'Wood';
                         break;
 
                     case 'brick':
+                        // Play sound
                         landPlatformSound = new Audio("assets/sounds/se_common_landing_brick.wav");
                         landPlatformSound.volume = 0.2;
                         landPlatformSound.play();
+                        // Display the current level
+                        document.getElementById('currentLevel').textContent = 'Brick';
                         break;
 
                     case 'sand':
+                        // Play sound
                         landPlatformSound = new Audio("assets/sounds/se_common_landing_sand.wav");
                         landPlatformSound.volume = 0.2;
                         landPlatformSound.play();
+                        // Display the current level
+                        document.getElementById('currentLevel').textContent = 'Sand';
                         break;
 
                     default:
@@ -388,6 +397,10 @@ function move() {
         // Sphere is on the ground
         sphere.position.y = -10 + sphereRadius; //Ground level is -10
         jumpVelocity = 0;
+        
+        // Display the current level
+        document.getElementById('currentLevel').textContent = 'Ground';
+
         if (!grounded) {
             const landPlatformSound = new Audio("assets/sounds/se_common_landing_grass.wav");
             landPlatformSound.volume = 0.2;

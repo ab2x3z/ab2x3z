@@ -10,9 +10,12 @@
 </head>
 
 <body>
-  <div id="mobile-warning">
+  <div id="mobileWarning">
     This application is not intended for mobile devices. Please use a desktop browser for the best experience.
   </div>
+
+  <div id="currentLevel"></div>
+
   <canvas id="bg"></canvas>
 
   <script>
@@ -23,7 +26,7 @@
       script.type = 'module';
       document.body.appendChild(script);
     } else {
-      document.getElementById('mobile-warning').style.display = 'block';
+      document.getElementById('mobileWarning').style.display = 'block';
     }
   </script>
 

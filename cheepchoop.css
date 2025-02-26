@@ -17,3 +17,12 @@ canvas {
     padding-top: 20vh; /* Center the text vertically */
     z-index: 1000; /* Ensure it's on top */
 }
+
+#currentLevel {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: white; /* Or any color you prefer */
+    font-size: 80px; /* Adjust as needed */
+    z-index: 1000; /* Ensure it's above other elements */
+  }
