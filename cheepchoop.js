@@ -547,6 +547,9 @@ function move() {
         sphere.position.set(0, -10 + sphereRadius, 0);
         momentum.set(0, 0, 0);
         sphere.rotation.set(0, 0, 0);
+        sphere.quaternion.set(0, 0, 0, 1);
+        yaw = 0;
+        pitch = 0;
     }
 }
 
