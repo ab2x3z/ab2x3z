@@ -520,7 +520,7 @@ function move() {
     camera.lookAt(sphere.position);
 
     // Teleport if too far from origin
-    if (grounded && sphere.position.distanceTo(new THREE.Vector3(0, sphere.position.y, 0)) > 100) {
+    if (onGround && sphere.position.distanceTo(new THREE.Vector3(0, sphere.position.y, 0)) > 100) {
         sphere.position.set(0, -10 + sphereRadius, 0);
         momentum.set(0, 0, 0);
     }
