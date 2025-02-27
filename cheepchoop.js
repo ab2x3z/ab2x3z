@@ -16,12 +16,6 @@ const platformLevels = [
     { name: 'obsidian', texture: 'Obsidian006_1K-JPG_Color.jpg', normal: 'Obsidian006_1K-JPG_NormalGL.jpg', size: 20 }
 ];
 
-if (/Mobi|Android/i.test(navigator.userAgent)) {
-    console.log(navigator.userAgent);
-} else {
-    console.log('no problems');
-}
-
 const manager = new THREE.LoadingManager();
 const progressBar = document.getElementById('progressBar');
 const progressBarContainer = document.getElementById('progressBarContainer');
@@ -38,6 +32,26 @@ manager.onLoad = function () {
     progressBarContainer.style.display = 'none';
     document.getElementById('bg').style.display = 'block';
 };
+
+let backgroundMusic;
+
+function setupBackgroundMusic(music = 'Mind-Bender.mp3') {
+    if (backgroundMusic) {
+        if (backgroundMusic.src.endsWith(music)) return; // Don't reload same music
+        backgroundMusic.pause();
+    }
+    
+    backgroundMusic = new Audio(`assets/sounds/${music}`);
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.3;
+}
+
+function playBackgroundMusic() {
+    if (!backgroundMusic) setupBackgroundMusic();
+    backgroundMusic.play().catch(error => {
+        console.log("Background music play failed:", error);
+    });
+}
 
 const scene = new THREE.Scene();
 
@@ -63,7 +77,7 @@ const rockMap = loadTexture(manager, 'assets/player/Rock020_1K-JPG_Color.jpg');
 const rockNormalMap = loadTexture(manager, 'assets/player/Rock020_1K-JPG_NormalGL.jpg');
 const materialSphere = new THREE.MeshStandardMaterial({ map: rockMap, normalMap: rockNormalMap });
 const sphere = new THREE.Mesh(geometrySphere, materialSphere);
-sphere.position.y = 5;
+sphere.position.y = 10;
 
 
 // ******************************  Create Ground  ******************************
@@ -81,7 +95,7 @@ grassNormalMap.repeat.set(RepeatFactor, RepeatFactor);
 
 const materialPlane = new THREE.MeshStandardMaterial({ map: grassMap, normalMap: grassNormalMap });
 const plane = new THREE.Mesh(geometryPlane, materialPlane);
-plane.rotateX(Math.PI * 1.5); plane.position.y = -10;
+plane.rotateX(Math.PI * 1.5);
 
 // ******************************  Create Arrow  ******************************
 const arrowShape = new THREE.Shape();
@@ -102,7 +116,7 @@ const extrudeSettings = {
 const arrowGeometry = new THREE.ExtrudeGeometry(arrowShape, extrudeSettings);
 const arrowMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-arrow.position.set(0, 10, -10);
+arrow.position.z = -10;
 scene.add(arrow);
 
 // ******************************  Create Platforms  ******************************
@@ -146,36 +160,36 @@ function createPlatforms(manager, levels) {
 
 const platforms = createPlatforms(manager, platformLevels);
 
-// ******************************  Add elements to scene  ******************************
-scene.add(sphere, plane);
-platforms.forEach(platform => {
-    scene.add(platform);
-});
-
-// ******************************  Add Light  ******************************
+// ******************************  Create Light  ******************************
 const ambientLight = new THREE.AmbientLight();
-scene.add(ambientLight);
-
 
 // ******************************  Load Skybox  ******************************
 const skybox = new THREE.TextureLoader(manager).load('assets/day-heavenly-space-scene-fluffy.jpg');
-scene.background = skybox;
 
-// Helpers
-// const lightHelper = new THREE.PointLightHelper(pointLight);
-// const gridHelper = new THREE.GridHelper(200, 50);
-// scene.add(lightHelper, gridHelper);
+// ******************************  Add elements to scene  ******************************
+scene.add(sphere, plane, ambientLight);
+platforms.forEach(platform => {
+    scene.add(platform);
+});
+scene.background = skybox;
 
 
 // ******************************  Game Logic  ******************************
 
 // Get key presses
+let userHasInteracted = false;
 const keysPressed = {};
 document.addEventListener('keydown', (event) => {
     keysPressed[event.key.toLowerCase()] = true;
+    userHasInteracted = true;
+    playBackgroundMusic();
 });
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key.toLowerCase()] = false;
+});
+document.addEventListener('click', function () {
+    userHasInteracted = true;
+    playBackgroundMusic();
 });
 function keyIsPressed(key) {
     return keysPressed[key.toLowerCase()] === true;
@@ -218,7 +232,7 @@ function checkSphereBoxCollision(sphere, box) {
 // Collision detection function (Sphere - Plane)
 function checkSpherePlaneCollision(sphere, plane) {
     // Calculate the distance between the sphere's center and the plane
-    const distance = sphere.position.y - (-10 + sphereRadius); // Plane y = -10
+    const distance = sphere.position.y - sphereRadius;
 
     // If the distance is less than or equal to zero, then the sphere is colliding with the plane
     return distance <= 0;
@@ -275,6 +289,14 @@ renderer.domElement.addEventListener('click', function () {
     lockPointer();
 });
 
+function playSound(soundPath, volume = 0.2) {
+    if (!userHasInteracted) return;
+    const sound = new Audio(soundPath);
+    sound.volume = volume;
+    sound.play().catch(error => {
+        console.log("Audio play failed:", error);
+    });
+}
 
 function move() {
     let moveDirection = new THREE.Vector3();
@@ -317,8 +339,7 @@ function move() {
 
     // Jump
     if (keyIsPressed(' ') && grounded) {
-        const jumpSound = new Audio("assets/sounds/se_common_jump.wav");
-        jumpSound.volume = 0.2; jumpSound.play();
+        playSound("assets/sounds/se_common_jump.wav");
         jumpVelocity = jumpHeight;
         grounded = false;
     }
@@ -346,50 +367,29 @@ function move() {
                 landedOnPlatformThisFrame = true; // Mark that we landed on a platform
 
                 // Play the sound based on the material
-                let landPlatformSound;
                 switch (platform.name) {
                     case 'wood':
-                        // Play sound
-                        landPlatformSound = new Audio("assets/sounds/se_common_landing_wood.wav");
-                        landPlatformSound.volume = 0.2;
-                        landPlatformSound.play();
-                        // Display the current level
+                        playSound("assets/sounds/se_common_landing_wood.wav");
                         document.getElementById('currentLevel').textContent = 'Wood';
                         break;
 
                     case 'brick':
-                        // Play sound
-                        landPlatformSound = new Audio("assets/sounds/se_common_landing_brick.wav");
-                        landPlatformSound.volume = 0.2;
-                        landPlatformSound.play();
-                        // Display the current level
+                        playSound("assets/sounds/se_common_landing_brick.wav");
                         document.getElementById('currentLevel').textContent = 'Brick';
                         break;
 
                     case 'sand':
-                        // Play sound
-                        landPlatformSound = new Audio("assets/sounds/se_common_landing_sand.wav");
-                        landPlatformSound.volume = 0.2;
-                        landPlatformSound.play();
-                        // Display the current level
+                        playSound("assets/sounds/se_common_landing_sand.wav");
                         document.getElementById('currentLevel').textContent = 'Sand';
                         break;
 
                     case 'marble':
-                        // Play sound
-                        landPlatformSound = new Audio("assets/sounds/se_common_landing_marble.wav");
-                        landPlatformSound.volume = 0.2;
-                        landPlatformSound.play();
-                        // Display the current level
+                        playSound("assets/sounds/se_common_landing_marble.wav");
                         document.getElementById('currentLevel').textContent = 'Marble';
                         break;
 
                     case 'obsidian':
-                        // Play sound
-                        landPlatformSound = new Audio("assets/sounds/se_common_landing_obsidian.wav");
-                        landPlatformSound.volume = 0.2;
-                        landPlatformSound.play();
-                        // Display the current level
+                        playSound("assets/sounds/se_common_landing_obsidian.wav");
                         document.getElementById('currentLevel').textContent = 'Obsidian';
                         break;
 
@@ -410,16 +410,14 @@ function move() {
         grounded = true;
     } else if (onGround) {
         // Sphere is on the ground
-        sphere.position.y = -10 + sphereRadius; //Ground level is -10
+        sphere.position.y = sphereRadius;
         jumpVelocity = 0;
 
         // Display the current level
         document.getElementById('currentLevel').textContent = 'Ground';
 
         if (!grounded) {
-            const landPlatformSound = new Audio("assets/sounds/se_common_landing_grass.wav");
-            landPlatformSound.volume = 0.2;
-            landPlatformSound.play();
+            playSound("assets/sounds/se_common_landing_grass.wav");
         }
         grounded = true;
     } else if (!onPlatform) {
@@ -435,7 +433,7 @@ function move() {
     }
 
     // Update the player height display
-    const currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y / 10);
+    const currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y);
     document.getElementById('currentHeight').textContent = currentHeight;
 
     // Adjust camera to follow the player
@@ -448,7 +446,7 @@ function move() {
 
     // Teleport if too far from origin
     if (onGround && sphere.position.distanceTo(new THREE.Vector3(0, sphere.position.y, 0)) > 500) {
-        sphere.position.set(0, -10 + sphereRadius, 0);
+        sphere.position.set(0, sphereRadius, 0);
         momentum.set(0, 0, 0);
         sphere.rotation.set(0, 0, 0);
         sphere.quaternion.set(0, 0, 0, 1);
@@ -457,11 +455,33 @@ function move() {
     }
 }
 
-
+// ******************************  Game Loop  ******************************
+let lastHeight; let fallDistance; let isFalling;
 function animate() {
     requestAnimationFrame(animate);
     move();
-    arrow.position.y = 10 + Math.sin((performance.now() * 0.001) * 2) * 2;
+    
+    if (sphere.position.y < lastHeight) {
+        fallDistance += lastHeight - sphere.position.y;
+        if (fallDistance > 100 && !isFalling) {
+            playSound("assets/sounds/se_common_oh-no.wav");
+            isFalling = true;
+            setTimeout(() => {
+                setupBackgroundMusic('Past Sadness.mp3');
+                playBackgroundMusic();
+            }, 500);
+        }
+    } else if (grounded && isFalling) {
+        setupBackgroundMusic('Mind-Bender.mp3');
+        playBackgroundMusic();
+        fallDistance = 0;
+        isFalling = false;
+    } else if (!isFalling) {
+        fallDistance = 0;
+    }
+    
+    lastHeight = sphere.position.y;
+    arrow.position.y = 20 + Math.sin((performance.now() * 0.001) * 2) * 2;
     renderer.render(scene, camera);
 }
 
