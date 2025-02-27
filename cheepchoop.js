@@ -1,5 +1,15 @@
 import * as THREE from 'three';
 
+// Add enum at the start of the file
+const LevelType = {
+    GROUND: { value: 0, name: 'Ground' },
+    WOOD: { value: 1, name: 'Wood' },
+    BRICK: { value: 2, name: 'Brick' },
+    SAND: { value: 3, name: 'Sand' },
+    MARBLE: { value: 4, name: 'Marble' },
+    OBSIDIAN: { value: 5, name: 'Obsidian' }
+};
+
 // Constants
 const RepeatFactor = 100;
 const gravity = -0.4;
@@ -10,7 +20,7 @@ const sensitivity = 0.002;
 const sphereRadius = 5;
 const platformLevels = [
     {
-        name: 'wood',
+        type: LevelType.WOOD,
         texture: 'Planks020_1K-JPG_Color.jpg',
         normal: 'Planks020_1K-JPG_NormalGL.jpg',
         ao: 'Planks020_1K-JPG_AmbientOcclusion.jpg',
@@ -19,7 +29,7 @@ const platformLevels = [
         size: 69
     },
     {
-        name: 'brick',
+        type: LevelType.BRICK,
         texture: 'Bricks082A_1K-JPG_Color.jpg',
         normal: 'Bricks082A_1K-JPG_NormalGL.jpg',
         ao: 'Bricks082A_1K-JPG_AmbientOcclusion.jpg',
@@ -28,7 +38,7 @@ const platformLevels = [
         size: 50
     },
     {
-        name: 'sand',
+        type: LevelType.SAND,
         texture: 'Ground080_1K-JPG_Color.jpg',
         normal: 'Ground080_1K-JPG_NormalGL.jpg',
         ao: 'Ground080_1K-JPG_AmbientOcclusion.jpg',
@@ -37,7 +47,7 @@ const platformLevels = [
         size: 40
     },
     {
-        name: 'marble',
+        type: LevelType.MARBLE,
         texture: 'Marble012_1K-JPG_Color.jpg',
         normal: 'Marble012_1K-JPG_NormalGL.jpg',
         displacement: 'Marble012_1K-JPG_Displacement.jpg',
@@ -45,7 +55,7 @@ const platformLevels = [
         size: 30
     },
     {
-        name: 'obsidian',
+        type: LevelType.OBSIDIAN,
         texture: 'Obsidian006_1K-JPG_Color.jpg',
         normal: 'Obsidian006_1K-JPG_NormalGL.jpg',
         displacement: 'Obsidian006_1K-JPG_Displacement.jpg',
@@ -210,7 +220,7 @@ function createPlatforms(manager, levels) {
 
             const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
-            platform.name = level.name;
+            platform.levelType = level.type;
 
             let newPosition = new THREE.Vector3();
             newPosition.y = lastPlatformPosition.y + 69;
@@ -290,6 +300,7 @@ let grounded = false;
 let jumpVelocity = 0;
 let momentum = new THREE.Vector3(0, 0, 0);
 let maxHeight = 0;
+let maxLevel = LevelType.GROUND;
 let lastHeight;
 let fallDistance;
 let isFalling;
@@ -488,34 +499,54 @@ function move() {
                 landedOnPlatformThisFrame = true; // Mark that we landed on a platform
 
                 // Play the sound based on the material
-                switch (platform.name) {
-                    case 'wood':
+                switch (platform.levelType) {
+                    case LevelType.WOOD:
                         playSound("assets/sounds/se_common_landing_wood.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Wood';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.WOOD.name;
+                        if (maxLevel.value < LevelType.WOOD.value) {
+                            maxLevel = LevelType.WOOD;
+                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                        }
                         break;
 
-                    case 'brick':
+                    case LevelType.BRICK:
                         playSound("assets/sounds/se_common_landing_brick.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Brick';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.BRICK.name;
+                        if (maxLevel.value < LevelType.BRICK.value) {
+                            maxLevel = LevelType.BRICK;
+                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                        }
                         break;
 
-                    case 'sand':
+                    case LevelType.SAND:
                         playSound("assets/sounds/se_common_landing_sand.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Sand';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.SAND.name;
+                        if (maxLevel.value < LevelType.SAND.value) {
+                            maxLevel = LevelType.SAND;
+                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                        }
                         break;
 
-                    case 'marble':
+                    case LevelType.MARBLE:
                         playSound("assets/sounds/se_common_landing_marble.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Marble';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.MARBLE.name;
+                        if (maxLevel.value < LevelType.MARBLE.value) {
+                            maxLevel = LevelType.MARBLE;
+                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                        }
                         break;
 
-                    case 'obsidian':
+                    case LevelType.OBSIDIAN:
                         playSound("assets/sounds/se_common_landing_obsidian.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Obsidian';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.OBSIDIAN.name;
+                        if (maxLevel.value < LevelType.OBSIDIAN.value) {
+                            maxLevel = LevelType.OBSIDIAN;
+                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                        }
                         break;
 
                     default:
-                        console.log("Invalid platform name");
+                        console.log("Invalid platform type");
                         break;
                 }
             } else if (jumpVelocity == 0) {
@@ -535,7 +566,7 @@ function move() {
         jumpVelocity = 0;
 
         // Display the current level
-        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Ground';
+        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.GROUND.name;
 
         if (!grounded) {
             playSound("assets/sounds/se_common_landing_grass.wav");
