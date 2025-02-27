@@ -1,5 +1,21 @@
 import * as THREE from 'three';
 
+// Constants
+const RepeatFactor = 50;
+const gravity = -0.4;
+const jumpHeight = 8;
+const walkSpeed = 1;
+const runSpeed = 2;
+const sensitivity = 0.002;
+const sphereRadius = 5;
+const platformLevels = [
+    { name: 'wood', texture: 'Planks020_1K-JPG_Color.jpg', normal: 'Planks020_1K-JPG_NormalGL.jpg', size: 69 },
+    { name: 'brick', texture: 'Bricks076A_1K-JPG_Color.jpg', normal: 'Bricks076A_1K-JPG_NormalGL.jpg', size: 50 },
+    { name: 'sand', texture: 'Ground080_1K-JPG_Color.jpg', normal: 'Ground080_1K-JPG_NormalGL.jpg', size: 40 },
+    { name: 'marble', texture: 'Marble012_1K-JPG_Color.jpg', normal: 'Marble012_1K-JPG_NormalGL.jpg', size: 30 },
+    { name: 'obsidian', texture: 'Obsidian006_1K-JPG_Color.jpg', normal: 'Obsidian006_1K-JPG_NormalGL.jpg', size: 20 }
+];
+
 if (/Mobi|Android/i.test(navigator.userAgent)) {
     console.log(navigator.userAgent);
 } else {
@@ -36,10 +52,15 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 renderer.render(scene, camera);
 
+// Function to load textures
+function loadTexture(manager, path) {
+    return new THREE.TextureLoader(manager).load(path);
+}
+
 // ******************************  Create Player  ******************************
 const geometrySphere = new THREE.SphereGeometry(5, 32, 32);
-const rockMap = new THREE.TextureLoader(manager).load('assets/player/Rock020_1K-JPG_Color.jpg');
-const rockNormalMap = new THREE.TextureLoader(manager).load('assets/player/Rock020_1K-JPG_NormalGL.jpg');
+const rockMap = loadTexture(manager, 'assets/player/Rock020_1K-JPG_Color.jpg');
+const rockNormalMap = loadTexture(manager, 'assets/player/Rock020_1K-JPG_NormalGL.jpg');
 const materialSphere = new THREE.MeshStandardMaterial({ map: rockMap, normalMap: rockNormalMap });
 const sphere = new THREE.Mesh(geometrySphere, materialSphere);
 sphere.position.y = 5;
@@ -47,15 +68,14 @@ sphere.position.y = 5;
 
 // ******************************  Create Ground  ******************************
 const geometryPlane = new THREE.PlaneGeometry(5000, 5000, 500, 500); // Increased size
-const grassMap = new THREE.TextureLoader(manager).load('assets/ground/Grass001_1K-JPG_Color.jpg');
-const grassNormalMap = new THREE.TextureLoader(manager).load('assets/ground/Grass001_1K-JPG_NormalGL.jpg');
+const grassMap = loadTexture(manager, 'assets/ground/Grass001_1K-JPG_Color.jpg');
+const grassNormalMap = loadTexture(manager, 'assets/ground/Grass001_1K-JPG_NormalGL.jpg');
 // Texture repeating
 grassMap.wrapS = THREE.RepeatWrapping;
 grassMap.wrapT = THREE.RepeatWrapping;
 grassNormalMap.wrapS = THREE.RepeatWrapping;
 grassNormalMap.wrapT = THREE.RepeatWrapping;
 
-const RepeatFactor = 50;
 grassMap.repeat.set(RepeatFactor, RepeatFactor);
 grassNormalMap.repeat.set(RepeatFactor, RepeatFactor);
 
@@ -86,170 +106,45 @@ arrow.position.set(0, 10, -10);
 scene.add(arrow);
 
 // ******************************  Create Platforms  ******************************
-const platforms = [];
-let lastPlatformPosition = new THREE.Vector3(0, 0, 0); // Store the position of the last platform
+function createPlatforms(manager, levels) {
+    const platforms = [];
+    let lastPlatformPosition = new THREE.Vector3(0, 0, 0);
 
-// Wood level
-for (let i = 0; i < 10; i++) {
-    const geometryPlatform = new THREE.BoxGeometry(69 + (Math.random() * 34.5 - 10), 3, 69 + (Math.random() * 34.5 - 10));
-    const plankMap = new THREE.TextureLoader(manager).load('assets/platforms/Planks020_1K-JPG_Color.jpg');
-    const plankNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Planks020_1K-JPG_NormalGL.jpg');
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: plankMap, normalMap: plankNormalMap });
-    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
+    levels.forEach(level => {
+        for (let i = 0; i < 10; i++) {
+            const size = level.size + (Math.random() * level.size / 2 - 10);
+            const geometryPlatform = new THREE.BoxGeometry(size, 3, size);
+            const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
+            const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
+            const materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal });
+            const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
-    // Name the platform to differentiate for the sound
-    platform.name = 'wood';
+            platform.name = level.name;
 
-    let newPosition = new THREE.Vector3();
-    newPosition.y = lastPlatformPosition.y + 69;
+            let newPosition = new THREE.Vector3();
+            newPosition.y = lastPlatformPosition.y + 69;
 
-    // Random Position on the perimeter of a circle with a radius of 69.
-    let angle = Math.random() * 2 * Math.PI;
-    let horizontalOffset = new THREE.Vector3(
-        Math.cos(angle) * 69,
-        0,
-        Math.sin(angle) * 69
-    );
+            let angle = Math.random() * 2 * Math.PI;
+            let horizontalOffset = new THREE.Vector3(
+                Math.cos(angle) * 69,
+                0,
+                Math.sin(angle) * 69
+            );
 
-    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
-    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
+            newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
+            newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
 
-    platform.position.copy(newPosition);
+            platform.position.copy(newPosition);
 
+            platforms.push(platform);
+            lastPlatformPosition.copy(newPosition);
+        }
+    });
 
-    platforms.push(platform);
-    lastPlatformPosition.copy(newPosition);
+    return platforms;
 }
 
-// Brick level
-for (let i = 0; i < 10; i++) {
-    const geometryPlatform = new THREE.BoxGeometry(50 + (Math.random() * 25 - 10), 3, 50 + (Math.random() * 25 - 10));
-    const brickMap = new THREE.TextureLoader(manager).load('assets/platforms/Bricks076A_1K-JPG_Color.jpg');
-    const brickNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Bricks076A_1K-JPG_NormalGL.jpg');
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
-    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
-
-    // Name the platform to differentiate for the sound
-    platform.name = 'brick';
-
-    let newPosition = new THREE.Vector3();
-    newPosition.y = lastPlatformPosition.y + 69;
-
-    // Random Position on the perimeter of a circle with a radius of 69.
-    let angle = Math.random() * 2 * Math.PI;
-    let horizontalOffset = new THREE.Vector3(
-        Math.cos(angle) * 69,
-        0,
-        Math.sin(angle) * 69
-    );
-
-    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
-    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
-
-    platform.position.copy(newPosition);
-
-
-    platforms.push(platform);
-    lastPlatformPosition.copy(newPosition);
-}
-
-// Sand level
-for (let i = 0; i < 10; i++) {
-    const geometryPlatform = new THREE.BoxGeometry(40 + (Math.random() * 20 - 10), 3, 40 + (Math.random() * 20 - 10));
-    const sandMap = new THREE.TextureLoader(manager).load('assets/platforms/Ground080_1K-JPG_Color.jpg');
-    const sandNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Ground080_1K-JPG_NormalGL.jpg');
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: sandMap, normalMap: sandNormalMap });
-    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
-
-    // Name the platform to differentiate for the sound
-    platform.name = 'sand';
-
-    let newPosition = new THREE.Vector3();
-    newPosition.y = lastPlatformPosition.y + 69;
-
-    // Random Position on the perimeter of a circle with a radius of 69.
-    let angle = Math.random() * 2 * Math.PI;
-    let horizontalOffset = new THREE.Vector3(
-        Math.cos(angle) * 69,
-        0,
-        Math.sin(angle) * 69
-    );
-
-    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
-    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
-
-    platform.position.copy(newPosition);
-
-
-    platforms.push(platform);
-    lastPlatformPosition.copy(newPosition);
-}
-
-// Marble level
-for (let i = 0; i < 10; i++) {
-    const geometryPlatform = new THREE.BoxGeometry(30 + (Math.random() * 15 - 10), 3, 30 + (Math.random() * 15 - 10));
-    const marbleMap = new THREE.TextureLoader(manager).load('assets/platforms/Marble012_1K-JPG_Color.jpg');
-    const marbleNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Marble012_1K-JPG_NormalGL.jpg');
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: marbleMap, normalMap: marbleNormalMap });
-    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
-
-    // Name the platform to differentiate for the sound
-    platform.name = 'marble';
-
-    let newPosition = new THREE.Vector3();
-    newPosition.y = lastPlatformPosition.y + 69;
-
-    // Random Position on the perimeter of a circle with a radius of 69.
-    let angle = Math.random() * 2 * Math.PI;
-    let horizontalOffset = new THREE.Vector3(
-        Math.cos(angle) * 69,
-        0,
-        Math.sin(angle) * 69
-    );
-
-    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
-    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
-
-    platform.position.copy(newPosition);
-
-
-    platforms.push(platform);
-    lastPlatformPosition.copy(newPosition);
-}
-
-// Obsidian level
-for (let i = 0; i < 10; i++) {
-    const geometryPlatform = new THREE.BoxGeometry(20 + (Math.random() * 10 - 10), 3, 20 + (Math.random() * 10 - 10));
-    const obsidianMap = new THREE.TextureLoader(manager).load('assets/platforms/Obsidian006_1K-JPG_Color.jpg');
-    const obsidianNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Obsidian006_1K-JPG_NormalGL.jpg');
-    const materialPlatform = new THREE.MeshStandardMaterial({ map: obsidianMap, normalMap: obsidianNormalMap });
-    const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
-
-    // Name the platform to differentiate for the sound
-    platform.name = 'obsidian';
-
-    let newPosition = new THREE.Vector3();
-    newPosition.y = lastPlatformPosition.y + 69;
-
-    // Random Position on the perimeter of a circle with a radius of 69.
-    let angle = Math.random() * 2 * Math.PI;
-    let horizontalOffset = new THREE.Vector3(
-        Math.cos(angle) * 69,
-        0,
-        Math.sin(angle) * 69
-    );
-
-    newPosition.x = lastPlatformPosition.x + horizontalOffset.x;
-    newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
-
-    platform.position.copy(newPosition);
-
-
-    platforms.push(platform);
-    lastPlatformPosition.copy(newPosition);
-}
-
-
+const platforms = createPlatforms(manager, platformLevels);
 
 // ******************************  Add elements to scene  ******************************
 scene.add(sphere, plane);
@@ -286,18 +181,11 @@ function keyIsPressed(key) {
     return keysPressed[key.toLowerCase()] === true;
 }
 
-// Adjustable game variables
-let jumpHeight = 8;
-let walkSpeed = 1;
-let runSpeed = 2;
-const gravity = -0.4;
-
 // Game variables
 let grounded = false;
 let jumpVelocity = 0;
 let momentum = new THREE.Vector3(0, 0, 0);
 const upVector = new THREE.Vector3(0, 1, 0);
-const sphereRadius = sphere.geometry.parameters.radius;
 
 // Collision detection function (Sphere - Box)
 function checkSphereBoxCollision(sphere, box) {
@@ -340,7 +228,6 @@ function checkSpherePlaneCollision(sphere, plane) {
 let isPointerLocked = false;
 let yaw = 0;
 let pitch = 0;
-const sensitivity = 0.002; // Adjust as needed
 
 
 // Function to lock pointer and hide cursor
@@ -438,7 +325,7 @@ function move() {
 
     if (!grounded) {
         jumpVelocity += gravity;
-        if (jumpVelocity < -10) { jumpVelocity = -10; }
+        if (jumpVelocity < -5) { jumpVelocity = -5; }
         sphere.position.y += jumpVelocity;
     }
 
@@ -573,15 +460,9 @@ function move() {
 
 function animate() {
     requestAnimationFrame(animate);
-
     move();
-
-    // Make arrow move
-    const arrowY = 10 + Math.sin((performance.now() * 0.001) * 2) * 2; // Oscillate between 8 and 12
-    arrow.position.y = arrowY;
-
+    arrow.position.y = 10 + Math.sin((performance.now() * 0.001) * 2) * 2;
     renderer.render(scene, camera);
 }
-
 
 animate();
