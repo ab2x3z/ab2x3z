@@ -6,6 +6,23 @@ if (/Mobi|Android/i.test(navigator.userAgent)) {
     console.log('no problems');
 }
 
+const manager = new THREE.LoadingManager();
+const progressBar = document.getElementById('progressBar');
+const progressBarContainer = document.getElementById('progressBarContainer');
+
+manager.onStart = function (url, itemsLoaded, itemsTotal) {
+    progressBarContainer.style.display = 'block';
+};
+
+manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+    progressBar.style.width = (itemsLoaded / itemsTotal * 100) + '%';
+};
+
+manager.onLoad = function () {
+    progressBarContainer.style.display = 'none';
+    document.getElementById('bg').style.display = 'block';
+};
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -21,8 +38,8 @@ renderer.render(scene, camera);
 
 // ******************************  Create Player  ******************************
 const geometrySphere = new THREE.SphereGeometry(5, 32, 32);
-const rockMap = new THREE.TextureLoader().load('assets/player/Rock020_1K-JPG_Color.jpg')
-const rockNormalMap = new THREE.TextureLoader().load('assets/player/Rock020_1K-JPG_NormalGL.jpg')
+const rockMap = new THREE.TextureLoader(manager).load('assets/player/Rock020_1K-JPG_Color.jpg');
+const rockNormalMap = new THREE.TextureLoader(manager).load('assets/player/Rock020_1K-JPG_NormalGL.jpg');
 const materialSphere = new THREE.MeshStandardMaterial({ map: rockMap, normalMap: rockNormalMap });
 const sphere = new THREE.Mesh(geometrySphere, materialSphere);
 sphere.position.y = 5;
@@ -30,8 +47,8 @@ sphere.position.y = 5;
 
 // ******************************  Create Ground  ******************************
 const geometryPlane = new THREE.PlaneGeometry(5000, 5000, 500, 500); // Increased size
-const grassMap = new THREE.TextureLoader().load('assets/ground/Grass001_1K-JPG_Color.jpg');
-const grassNormalMap = new THREE.TextureLoader().load('assets/ground/Grass001_1K-JPG_NormalGL.jpg');
+const grassMap = new THREE.TextureLoader(manager).load('assets/ground/Grass001_1K-JPG_Color.jpg');
+const grassNormalMap = new THREE.TextureLoader(manager).load('assets/ground/Grass001_1K-JPG_NormalGL.jpg');
 // Texture repeating
 grassMap.wrapS = THREE.RepeatWrapping;
 grassMap.wrapT = THREE.RepeatWrapping;
@@ -75,8 +92,8 @@ let lastPlatformPosition = new THREE.Vector3(0, 0, 0); // Store the position of 
 // Wood level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(69 + (Math.random() * 34.5 - 10), 3, 69 + (Math.random() * 34.5 - 10));
-    const plankMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_Color.jpg')
-    const plankNormalMap = new THREE.TextureLoader().load('assets/platforms/Planks020_1K-JPG_NormalGL.jpg')
+    const plankMap = new THREE.TextureLoader(manager).load('assets/platforms/Planks020_1K-JPG_Color.jpg');
+    const plankNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Planks020_1K-JPG_NormalGL.jpg');
     const materialPlatform = new THREE.MeshStandardMaterial({ map: plankMap, normalMap: plankNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
@@ -107,8 +124,8 @@ for (let i = 0; i < 10; i++) {
 // Brick level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(50 + (Math.random() * 25 - 10), 3, 50 + (Math.random() * 25 - 10));
-    const brickMap = new THREE.TextureLoader().load('assets/platforms/Bricks076A_1K-JPG_Color.jpg')
-    const brickNormalMap = new THREE.TextureLoader().load('assets/platforms/Bricks076A_1K-JPG_NormalGL.jpg')
+    const brickMap = new THREE.TextureLoader(manager).load('assets/platforms/Bricks076A_1K-JPG_Color.jpg');
+    const brickNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Bricks076A_1K-JPG_NormalGL.jpg');
     const materialPlatform = new THREE.MeshStandardMaterial({ map: brickMap, normalMap: brickNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
@@ -139,8 +156,8 @@ for (let i = 0; i < 10; i++) {
 // Sand level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(40 + (Math.random() * 20 - 10), 3, 40 + (Math.random() * 20 - 10));
-    const sandMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_Color.jpg')
-    const sandNormalMap = new THREE.TextureLoader().load('assets/platforms/Ground080_1K-JPG_NormalGL.jpg')
+    const sandMap = new THREE.TextureLoader(manager).load('assets/platforms/Ground080_1K-JPG_Color.jpg');
+    const sandNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Ground080_1K-JPG_NormalGL.jpg');
     const materialPlatform = new THREE.MeshStandardMaterial({ map: sandMap, normalMap: sandNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
@@ -171,8 +188,8 @@ for (let i = 0; i < 10; i++) {
 // Marble level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(30 + (Math.random() * 15 - 10), 3, 30 + (Math.random() * 15 - 10));
-    const marbleMap = new THREE.TextureLoader().load('assets/platforms/Marble012_1K-JPG_Color.jpg')
-    const marbleNormalMap = new THREE.TextureLoader().load('assets/platforms/Marble012_1K-JPG_NormalGL.jpg')
+    const marbleMap = new THREE.TextureLoader(manager).load('assets/platforms/Marble012_1K-JPG_Color.jpg');
+    const marbleNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Marble012_1K-JPG_NormalGL.jpg');
     const materialPlatform = new THREE.MeshStandardMaterial({ map: marbleMap, normalMap: marbleNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
@@ -203,8 +220,8 @@ for (let i = 0; i < 10; i++) {
 // Obsidian level
 for (let i = 0; i < 10; i++) {
     const geometryPlatform = new THREE.BoxGeometry(20 + (Math.random() * 10 - 10), 3, 20 + (Math.random() * 10 - 10));
-    const obsidianMap = new THREE.TextureLoader().load('assets/platforms/Obsidian006_1K-JPG_Color.jpg')
-    const obsidianNormalMap = new THREE.TextureLoader().load('assets/platforms/Obsidian006_1K-JPG_NormalGL.jpg')
+    const obsidianMap = new THREE.TextureLoader(manager).load('assets/platforms/Obsidian006_1K-JPG_Color.jpg');
+    const obsidianNormalMap = new THREE.TextureLoader(manager).load('assets/platforms/Obsidian006_1K-JPG_NormalGL.jpg');
     const materialPlatform = new THREE.MeshStandardMaterial({ map: obsidianMap, normalMap: obsidianNormalMap });
     const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
@@ -246,7 +263,7 @@ scene.add(ambientLight);
 
 
 // ******************************  Load Skybox  ******************************
-const skybox = new THREE.TextureLoader().load('assets/day-heavenly-space-scene-fluffy.jpg');
+const skybox = new THREE.TextureLoader(manager).load('assets/day-heavenly-space-scene-fluffy.jpg');
 scene.background = skybox;
 
 // Helpers

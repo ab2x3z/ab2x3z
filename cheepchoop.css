@@ -36,3 +36,22 @@ canvas {
     font-size: 50px;
     z-index: 1000;
 }
+
+#progressBarContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    border-radius: 15px;
+}
+
+#progressBar {
+    width: 0;
+    height: 100%;
+    background-color: #4caf50;
+    border-radius: 15px;
+}
