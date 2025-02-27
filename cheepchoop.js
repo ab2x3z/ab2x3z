@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Sky } from 'three/addons/objects/Sky.js';
 
 // Add enum at the start of the file
 const LevelType = {
@@ -247,20 +248,23 @@ function createPlatforms(manager, levels) {
 
 const platforms = createPlatforms(manager, platformLevels);
 
+// ******************************  Create Sky  ******************************
+const sky = new Sky();
+sky.scale.setScalar( 450000 );
+sky.material.uniforms.rayleigh.value = 0.1;
+sky.material.uniforms.sunPosition.value = new THREE.Vector3( 1, Math.PI, Math.PI );
+
 // ******************************  Create Light  ******************************
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(0, 1000, 0);
 
-// ******************************  Load Skybox  ******************************
-const skybox = new THREE.TextureLoader(manager).load('assets/day-heavenly-space-scene-fluffy.jpg');
-
 // ******************************  Add elements to scene  ******************************
-scene.add(sphere, plane, directionalLight, ambientLight);
+scene.add(sphere, plane, sky, directionalLight, ambientLight);
 platforms.forEach(platform => {
     scene.add(platform);
 });
-scene.background = skybox;
+//scene.background = skybox;
 
 
 // ******************************  Game Logic  ******************************
