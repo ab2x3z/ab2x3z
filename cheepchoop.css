@@ -12,39 +12,80 @@ canvas {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    color: #eee;
     text-align: center;
-    padding-top: 20vh;
+    padding-top: 2rem;
     z-index: 1000;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 1.2em;
 }
 
 #currentLevel {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    color: white;
-    font-size: 80px;
+    bottom: 2rem;
+    left: 2rem;
+    color: #fff;
+    font-size: 6rem;
     z-index: 1000;
+    font-family: 'Bebas Neue', sans-serif;
+    text-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.8);
+}
+
+#currentLevel::before {
+    content: 'LEVEL';
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
 }
 
 #currentHeight {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    color: red;
+    top: 2rem;
+    right: 2rem;
     font-weight: bold;
-    font-size: 50px;
+    font-size: 4rem;
     z-index: 1000;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
+    border: 0.2rem solid currentColor;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: inherit;
+}
+
+#currentHeight::before {
+    content: 'CURRENT';
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 #maxHeight {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    color: goldenrod;
+    top: 2rem;
+    left: 2rem;
+    color: #ffeb3b;
     font-weight: bold;
-    font-size: 50px;
+    font-size: 4rem;
     z-index: 1000;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.8);
+    border: 0.2rem solid #ffeb3b;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#maxHeight::before {
+    content: 'HIGHEST';
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 #progressBarContainer {

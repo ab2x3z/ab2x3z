@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { roughness } from 'three/tsl';
 
 // Constants
 const RepeatFactor = 100;
@@ -394,6 +393,32 @@ function playSound(soundPath, volume = 0.2) {
     });
 }
 
+function getHeightColor(height) {
+    const maxHeight = 1000;
+    const value = Math.min(height, maxHeight) / maxHeight;
+
+    let r, g, b;
+
+    if (value < 0.33) {
+        // Green to Yellow (0 to 0.33)
+        r = Math.floor(255 * (value * 3));
+        g = 255;
+        b = 0;
+    } else if (value < 0.66) {
+        // Yellow to Red (0.33 to 0.66)
+        r = 255;
+        g = Math.floor(255 * (1 - ((value - 0.33) * 3)));
+        b = 0;
+    } else {
+        // Red to Black (0.66 to 1.0)
+        r = Math.floor(255 * (1 - ((value - 0.66) * 3)));
+        g = 0;
+        b = 0;
+    }
+
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
 function move() {
     let moveDirection = new THREE.Vector3();
     let moveSpeed = keyIsPressed('Shift') ? runSpeed : walkSpeed;
@@ -435,7 +460,7 @@ function move() {
 
     // Jump
     if (keyIsPressed(' ') && (grounded || godMode)) {
-        playSound("assets/sounds/se_common_jump.wav");
+        if (!godMode) { playSound("assets/sounds/se_common_jump.wav"); }
         jumpVelocity = jumpHeight;
         grounded = false;
     }
@@ -553,11 +578,15 @@ function move() {
     }
 
     // Update the player height display
-    const currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y / 10);
-    document.getElementById('currentHeight').textContent = currentHeight;
+    let currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y / 10);
+    const heightElement = document.getElementById('currentHeight');
+    heightElement.textContent = `${currentHeight} m`;
+    heightElement.style.color = getHeightColor(currentHeight);
+    heightElement.style.borderColor = getHeightColor(currentHeight);
+
     if (currentHeight > maxHeight) {
         maxHeight = currentHeight;
-        document.getElementById('maxHeight').textContent = maxHeight;
+        document.getElementById('maxHeight').textContent = `${maxHeight} m`;
     }
 
     // Adjust camera to follow the player
