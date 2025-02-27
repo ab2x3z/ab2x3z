@@ -37,6 +37,16 @@ canvas {
     z-index: 1000;
 }
 
+#maxHeight {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: goldenrod;
+    font-weight: bold;
+    font-size: 50px;
+    z-index: 1000;
+}
+
 #progressBarContainer {
     position: fixed;
     top: 50%;

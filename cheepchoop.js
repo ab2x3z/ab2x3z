@@ -15,6 +15,8 @@ const platformLevels = [
     { name: 'marble', texture: 'Marble012_1K-JPG_Color.jpg', normal: 'Marble012_1K-JPG_NormalGL.jpg', size: 30 },
     { name: 'obsidian', texture: 'Obsidian006_1K-JPG_Color.jpg', normal: 'Obsidian006_1K-JPG_NormalGL.jpg', size: 20 }
 ];
+// To remove
+let fly = false;
 
 const manager = new THREE.LoadingManager();
 const progressBar = document.getElementById('progressBar');
@@ -124,9 +126,10 @@ function createPlatforms(manager, levels) {
     const platforms = [];
     let lastPlatformPosition = new THREE.Vector3(0, 0, 0);
 
-    levels.forEach(level => {
-        for (let i = 0; i < 10; i++) {
-            const size = level.size + (Math.random() * level.size / 2 - 10);
+    levels.forEach((level, levelIndex) => {
+        const numberOfPlatforms = levelIndex === levels.length - 1 ? 100 : 10; // Different count for last level
+        for (let i = 0; i < numberOfPlatforms; i++) {
+            let size = level.size + (Math.random() * level.size / 2 - 10);
             const geometryPlatform = new THREE.BoxGeometry(size, 3, size);
             const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
             const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
@@ -199,6 +202,7 @@ function keyIsPressed(key) {
 let grounded = false;
 let jumpVelocity = 0;
 let momentum = new THREE.Vector3(0, 0, 0);
+let maxHeight = 0;
 const upVector = new THREE.Vector3(0, 1, 0);
 
 // Collision detection function (Sphere - Box)
@@ -338,7 +342,7 @@ function move() {
     }
 
     // Jump
-    if (keyIsPressed(' ') && grounded) {
+    if (keyIsPressed(' ') && (grounded || fly)) {  // To remove
         playSound("assets/sounds/se_common_jump.wav");
         jumpVelocity = jumpHeight;
         grounded = false;
@@ -346,7 +350,7 @@ function move() {
 
     if (!grounded) {
         jumpVelocity += gravity;
-        if (jumpVelocity < -5) { jumpVelocity = -5; }
+        if (jumpVelocity < -3) { jumpVelocity = -3; }
         sphere.position.y += jumpVelocity;
     }
 
@@ -433,8 +437,12 @@ function move() {
     }
 
     // Update the player height display
-    const currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y);
+    const currentHeight = sphere.position.y < 0 ? 0 : Math.round(sphere.position.y / 10);
     document.getElementById('currentHeight').textContent = currentHeight;
+    if (currentHeight > maxHeight) {
+        maxHeight = currentHeight;
+        document.getElementById('maxHeight').textContent = maxHeight;
+    }
 
     // Adjust camera to follow the player
     const cameraOffset = new THREE.Vector3(0, 10, 30);
@@ -479,6 +487,9 @@ function animate() {
     } else if (!isFalling) {
         fallDistance = 0;
     }
+
+    // To remove
+    if (keyIsPressed('f')) { fly = !fly; }
     
     lastHeight = sphere.position.y;
     arrow.position.y = 20 + Math.sin((performance.now() * 0.001) * 2) * 2;
