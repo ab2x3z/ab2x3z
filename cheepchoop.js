@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import { roughness } from 'three/tsl';
 
 // Constants
-const RepeatFactor = 50;
+const RepeatFactor = 100;
 const gravity = -0.4;
 const jumpHeight = 8;
 const walkSpeed = 1;
@@ -9,14 +10,50 @@ const runSpeed = 2;
 const sensitivity = 0.002;
 const sphereRadius = 5;
 const platformLevels = [
-    { name: 'wood', texture: 'Planks020_1K-JPG_Color.jpg', normal: 'Planks020_1K-JPG_NormalGL.jpg', size: 69 },
-    { name: 'brick', texture: 'Bricks076A_1K-JPG_Color.jpg', normal: 'Bricks076A_1K-JPG_NormalGL.jpg', size: 50 },
-    { name: 'sand', texture: 'Ground080_1K-JPG_Color.jpg', normal: 'Ground080_1K-JPG_NormalGL.jpg', size: 40 },
-    { name: 'marble', texture: 'Marble012_1K-JPG_Color.jpg', normal: 'Marble012_1K-JPG_NormalGL.jpg', size: 30 },
-    { name: 'obsidian', texture: 'Obsidian006_1K-JPG_Color.jpg', normal: 'Obsidian006_1K-JPG_NormalGL.jpg', size: 20 }
+    {
+        name: 'wood',
+        texture: 'Planks020_1K-JPG_Color.jpg',
+        normal: 'Planks020_1K-JPG_NormalGL.jpg',
+        ao: 'Planks020_1K-JPG_AmbientOcclusion.jpg',
+        displacement: 'Planks020_1K-JPG_Displacement.jpg',
+        roughness: 'Planks020_1K-JPG_Roughness.jpg',
+        size: 69
+    },
+    {
+        name: 'brick',
+        texture: 'Bricks082A_1K-JPG_Color.jpg',
+        normal: 'Bricks082A_1K-JPG_NormalGL.jpg',
+        ao: 'Bricks082A_1K-JPG_AmbientOcclusion.jpg',
+        displacement: 'Bricks082A_1K-JPG_Displacement.jpg',
+        roughness: 'Bricks082A_1K-JPG_Roughness.jpg',
+        size: 50
+    },
+    {
+        name: 'sand',
+        texture: 'Ground080_1K-JPG_Color.jpg',
+        normal: 'Ground080_1K-JPG_NormalGL.jpg',
+        ao: 'Ground080_1K-JPG_AmbientOcclusion.jpg',
+        displacement: 'Ground080_1K-JPG_Displacement.jpg',
+        roughness: 'Ground080_1K-JPG_Roughness.jpg',
+        size: 40
+    },
+    {
+        name: 'marble',
+        texture: 'Marble012_1K-JPG_Color.jpg',
+        normal: 'Marble012_1K-JPG_NormalGL.jpg',
+        displacement: 'Marble012_1K-JPG_Displacement.jpg',
+        roughness: 'Marble012_1K-JPG_Roughness.jpg',
+        size: 30
+    },
+    {
+        name: 'obsidian',
+        texture: 'Obsidian006_1K-JPG_Color.jpg',
+        normal: 'Obsidian006_1K-JPG_NormalGL.jpg',
+        displacement: 'Obsidian006_1K-JPG_Displacement.jpg',
+        roughness: 'Obsidian006_1K-JPG_Roughness.jpg',
+        size: 20
+    }
 ];
-// To remove
-let fly = false;
 
 const manager = new THREE.LoadingManager();
 const progressBar = document.getElementById('progressBar');
@@ -42,7 +79,7 @@ function setupBackgroundMusic(music = 'Mind-Bender.mp3') {
         if (backgroundMusic.src.endsWith(music)) return; // Don't reload same music
         backgroundMusic.pause();
     }
-    
+
     backgroundMusic = new Audio(`assets/sounds/${music}`);
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.3;
@@ -74,28 +111,56 @@ function loadTexture(manager, path) {
 }
 
 // ******************************  Create Player  ******************************
-const geometrySphere = new THREE.SphereGeometry(5, 32, 32);
-const rockMap = loadTexture(manager, 'assets/player/Rock020_1K-JPG_Color.jpg');
-const rockNormalMap = loadTexture(manager, 'assets/player/Rock020_1K-JPG_NormalGL.jpg');
-const materialSphere = new THREE.MeshStandardMaterial({ map: rockMap, normalMap: rockNormalMap });
+const geometrySphere = new THREE.SphereGeometry(sphereRadius, 32, 32);
+const rockMap = loadTexture(manager, 'assets/player/ChristmasTreeOrnament017_1K-JPG_Color.jpg');
+const rockNormalMap = loadTexture(manager, 'assets/player/ChristmasTreeOrnament017_1K-JPG_NormalGL.jpg');
+const rockRoughnessMap = loadTexture(manager, 'assets/player/ChristmasTreeOrnament017_1K-JPG_Roughness.jpg');
+const rockMetalnessMap = loadTexture(manager, 'assets/player/ChristmasTreeOrnament017_1K-JPG_Metalness.jpg');
+const rockDisplacementMap = loadTexture(manager, 'assets/player/ChristmasTreeOrnament017_1K-JPG_Displacement.jpg');
+
+const materialSphere = new THREE.MeshStandardMaterial({
+    map: rockMap,
+    normalMap: rockNormalMap,
+    roughnessMap: rockRoughnessMap,
+    metalnessMap: rockMetalnessMap,
+    displacementMap: rockDisplacementMap,
+    displacementScale: 0.05,
+    color: new THREE.Color(1, 1, 1).multiplyScalar(2),
+    metalness: 0.6,
+    roughness: 0
+});
 const sphere = new THREE.Mesh(geometrySphere, materialSphere);
 sphere.position.y = 10;
 
 
 // ******************************  Create Ground  ******************************
-const geometryPlane = new THREE.PlaneGeometry(5000, 5000, 500, 500); // Increased size
-const grassMap = loadTexture(manager, 'assets/ground/Grass001_1K-JPG_Color.jpg');
-const grassNormalMap = loadTexture(manager, 'assets/ground/Grass001_1K-JPG_NormalGL.jpg');
-// Texture repeating
-grassMap.wrapS = THREE.RepeatWrapping;
-grassMap.wrapT = THREE.RepeatWrapping;
-grassNormalMap.wrapS = THREE.RepeatWrapping;
-grassNormalMap.wrapT = THREE.RepeatWrapping;
+const groundSize = 5000;
+const groundSegments = 500;
+const geometryPlane = new THREE.PlaneGeometry(groundSize, groundSize, groundSegments, groundSegments);
 
-grassMap.repeat.set(RepeatFactor, RepeatFactor);
-grassNormalMap.repeat.set(RepeatFactor, RepeatFactor);
+const loadAndRepeatTexture = (manager, path, repeatFactor) => {
+    const texture = loadTexture(manager, path);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(repeatFactor, repeatFactor);
+    return texture;
+};
+const grassMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_Color.jpg', RepeatFactor);
+const grassNormalMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_NormalGL.jpg', RepeatFactor);
+const grassAoMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_AmbientOcclusion.jpg', RepeatFactor);
+const grassDisplacementMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_Displacement.jpg', RepeatFactor);
+const grassRoughnessMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_Roughness.jpg', RepeatFactor);
 
-const materialPlane = new THREE.MeshStandardMaterial({ map: grassMap, normalMap: grassNormalMap });
+const materialPlane = new THREE.MeshStandardMaterial({
+    map: grassMap,
+    normalMap: grassNormalMap,
+    aoMap: grassAoMap,
+    displacementMap: grassDisplacementMap,
+    displacementScale: 2,
+    roughnessMap: grassRoughnessMap,
+    roughness: 1
+});
+
 const plane = new THREE.Mesh(geometryPlane, materialPlane);
 plane.rotateX(Math.PI * 1.5);
 
@@ -133,7 +198,17 @@ function createPlatforms(manager, levels) {
             const geometryPlatform = new THREE.BoxGeometry(size, 3, size);
             const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
             const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
-            const materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal });
+            const displacement = loadTexture(manager, `assets/platforms/${level.displacement}`);
+            const roughness = loadTexture(manager, `assets/platforms/${level.roughness}`);
+
+            let materialPlatform;
+            if (level.ao){
+                const ao = loadTexture(manager, `assets/platforms/${level.ao}`);
+                materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal, aoMap: ao, displacementMap: displacement, roughnessMap: roughness, displacementScale: 0 });
+            } else {
+                materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal, displacementMap: displacement, roughnessMap: roughness, displacementScale: 0 });
+            }
+            
             const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
             platform.name = level.name;
@@ -164,13 +239,15 @@ function createPlatforms(manager, levels) {
 const platforms = createPlatforms(manager, platformLevels);
 
 // ******************************  Create Light  ******************************
-const ambientLight = new THREE.AmbientLight();
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(0, 1000, 0);
 
 // ******************************  Load Skybox  ******************************
 const skybox = new THREE.TextureLoader(manager).load('assets/day-heavenly-space-scene-fluffy.jpg');
 
 // ******************************  Add elements to scene  ******************************
-scene.add(sphere, plane, ambientLight);
+scene.add(sphere, plane, directionalLight, ambientLight);
 platforms.forEach(platform => {
     scene.add(platform);
 });
@@ -203,6 +280,9 @@ let grounded = false;
 let jumpVelocity = 0;
 let momentum = new THREE.Vector3(0, 0, 0);
 let maxHeight = 0;
+let lastHeight; 
+let fallDistance; 
+let isFalling;
 const upVector = new THREE.Vector3(0, 1, 0);
 
 // Collision detection function (Sphere - Box)
@@ -342,7 +422,7 @@ function move() {
     }
 
     // Jump
-    if (keyIsPressed(' ') && (grounded || fly)) {  // To remove
+    if (keyIsPressed(' ') && (grounded)) {
         playSound("assets/sounds/se_common_jump.wav");
         jumpVelocity = jumpHeight;
         grounded = false;
@@ -429,6 +509,28 @@ function move() {
         grounded = false;
     }
 
+    
+    if (sphere.position.y < lastHeight) {
+        fallDistance += lastHeight - sphere.position.y;
+        if (fallDistance > 100 && !isFalling) {
+            playSound("assets/sounds/se_common_oh-no.wav");
+            isFalling = true;
+            setTimeout(() => {
+                setupBackgroundMusic('Past Sadness.mp3');
+                playBackgroundMusic();
+            }, 500);
+        }
+    } else if (grounded && isFalling) {
+        setupBackgroundMusic('Mind-Bender.mp3');
+        playBackgroundMusic();
+        fallDistance = 0;
+        isFalling = false;
+    } else if (!isFalling) {
+        fallDistance = 0;
+    }
+
+    lastHeight = sphere.position.y;
+
     // Reset position if falls below ground
     if (sphere.position.y < plane.position.y + sphereRadius) {
         sphere.position.y = plane.position.y + sphereRadius;
@@ -464,34 +566,10 @@ function move() {
 }
 
 // ******************************  Game Loop  ******************************
-let lastHeight; let fallDistance; let isFalling;
 function animate() {
     requestAnimationFrame(animate);
     move();
-    
-    if (sphere.position.y < lastHeight) {
-        fallDistance += lastHeight - sphere.position.y;
-        if (fallDistance > 100 && !isFalling) {
-            playSound("assets/sounds/se_common_oh-no.wav");
-            isFalling = true;
-            setTimeout(() => {
-                setupBackgroundMusic('Past Sadness.mp3');
-                playBackgroundMusic();
-            }, 500);
-        }
-    } else if (grounded && isFalling) {
-        setupBackgroundMusic('Mind-Bender.mp3');
-        playBackgroundMusic();
-        fallDistance = 0;
-        isFalling = false;
-    } else if (!isFalling) {
-        fallDistance = 0;
-    }
 
-    // To remove
-    if (keyIsPressed('f')) { fly = !fly; }
-    
-    lastHeight = sphere.position.y;
     arrow.position.y = 20 + Math.sin((performance.now() * 0.001) * 2) * 2;
     renderer.render(scene, camera);
 }
