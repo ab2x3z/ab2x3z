@@ -202,13 +202,13 @@ function createPlatforms(manager, levels) {
             const roughness = loadTexture(manager, `assets/platforms/${level.roughness}`);
 
             let materialPlatform;
-            if (level.ao){
+            if (level.ao) {
                 const ao = loadTexture(manager, `assets/platforms/${level.ao}`);
                 materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal, aoMap: ao, displacementMap: displacement, roughnessMap: roughness, displacementScale: 0 });
             } else {
                 materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal, displacementMap: displacement, roughnessMap: roughness, displacementScale: 0 });
             }
-            
+
             const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
 
             platform.name = level.name;
@@ -258,11 +258,22 @@ scene.background = skybox;
 
 // Get key presses
 let userHasInteracted = false;
+let previousLevel;
 const keysPressed = {};
 document.addEventListener('keydown', (event) => {
     keysPressed[event.key.toLowerCase()] = true;
     userHasInteracted = true;
     playBackgroundMusic();
+
+    if (event.key === 'g') {
+        godMode = !godMode;
+        if (godMode) {
+            previousLevel = document.getElementById('currentLevel').textContent;
+            document.getElementById('currentLevel').textContent = 'GodMode';
+        } else {
+            document.getElementById('currentLevel').textContent = previousLevel;
+        }
+    }
 });
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key.toLowerCase()] = false;
@@ -280,16 +291,17 @@ let grounded = false;
 let jumpVelocity = 0;
 let momentum = new THREE.Vector3(0, 0, 0);
 let maxHeight = 0;
-let lastHeight; 
-let fallDistance; 
+let lastHeight;
+let fallDistance;
 let isFalling;
+let godMode = false;
 const upVector = new THREE.Vector3(0, 1, 0);
 
 // Collision detection function (Sphere - Box)
 function checkSphereBoxCollision(sphere, box) {
     const spherePosition = sphere.position.clone();
     const boxPosition = box.position.clone();
-    const boxSize = new THREE.Vector3(box.geometry.parameters.width / 2, 1.5, box.geometry.parameters.depth / 2); // Half the box size (assuming BoxGeometry is centered)
+    const boxSize = new THREE.Vector3(box.geometry.parameters.width / 2, 1.5, box.geometry.parameters.depth / 2); // Half the box size
 
     // Get box min and max coordinates
     const boxMin = new THREE.Vector3().copy(boxPosition).sub(boxSize);
@@ -412,7 +424,7 @@ function move() {
     const rotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, rotationAngle);
     sphere.quaternion.premultiply(rotationQuaternion);
 
-    if (grounded) {
+    if (grounded || godMode) {
         // Update horizontal momentum based on current input.
         momentum.copy(rotatedMoveDirection).multiplyScalar(moveSpeed);
         sphere.position.add(momentum);
@@ -422,7 +434,7 @@ function move() {
     }
 
     // Jump
-    if (keyIsPressed(' ') && (grounded)) {
+    if (keyIsPressed(' ') && (grounded || godMode)) {
         playSound("assets/sounds/se_common_jump.wav");
         jumpVelocity = jumpHeight;
         grounded = false;
@@ -454,27 +466,27 @@ function move() {
                 switch (platform.name) {
                     case 'wood':
                         playSound("assets/sounds/se_common_landing_wood.wav");
-                        document.getElementById('currentLevel').textContent = 'Wood';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Wood';
                         break;
 
                     case 'brick':
                         playSound("assets/sounds/se_common_landing_brick.wav");
-                        document.getElementById('currentLevel').textContent = 'Brick';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Brick';
                         break;
 
                     case 'sand':
                         playSound("assets/sounds/se_common_landing_sand.wav");
-                        document.getElementById('currentLevel').textContent = 'Sand';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Sand';
                         break;
 
                     case 'marble':
                         playSound("assets/sounds/se_common_landing_marble.wav");
-                        document.getElementById('currentLevel').textContent = 'Marble';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Marble';
                         break;
 
                     case 'obsidian':
                         playSound("assets/sounds/se_common_landing_obsidian.wav");
-                        document.getElementById('currentLevel').textContent = 'Obsidian';
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Obsidian';
                         break;
 
                     default:
@@ -498,7 +510,7 @@ function move() {
         jumpVelocity = 0;
 
         // Display the current level
-        document.getElementById('currentLevel').textContent = 'Ground';
+        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : 'Ground';
 
         if (!grounded) {
             playSound("assets/sounds/se_common_landing_grass.wav");
@@ -509,7 +521,7 @@ function move() {
         grounded = false;
     }
 
-    
+
     if (sphere.position.y < lastHeight) {
         fallDistance += lastHeight - sphere.position.y;
         if (fallDistance > 100 && !isFalling) {
@@ -526,6 +538,8 @@ function move() {
         fallDistance = 0;
         isFalling = false;
     } else if (!isFalling) {
+        setupBackgroundMusic('Mind-Bender.mp3');
+        playBackgroundMusic();
         fallDistance = 0;
     }
 
@@ -569,6 +583,12 @@ function move() {
 function animate() {
     requestAnimationFrame(animate);
     move();
+
+    if (godMode) {
+        sphere.material.color.set(0xff0000);
+    } else {
+        sphere.material.color.set(0xffffff);
+    }
 
     arrow.position.y = 20 + Math.sin((performance.now() * 0.001) * 2) * 2;
     renderer.render(scene, camera);
