@@ -6,7 +6,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        cheepchoop: resolve(__dirname, 'cheepchoop.html')
+        cheepchoop: resolve(__dirname, 'cheepchoop.html'),
+        mainmenu: resolve(__dirname, 'mainmenu.html')
       },
     },
   },
