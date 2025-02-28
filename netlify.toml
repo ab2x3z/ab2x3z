@@ -1,4 +1,12 @@
+[build]
+  functions = "functions"
+
 [[redirects]]
   from = "/cheepchoop/*"
   to = "/cheepchoop.html"
+  status = 200
+
+[[redirects]]
+  from = "/mainmenu/*"
+  to = "/mainmenu.html"
   status = 200

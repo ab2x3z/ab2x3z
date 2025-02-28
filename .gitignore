@@ -1,3 +1,6 @@
 node_modules
 .vscode/*
 !.vscode/extensions.json
+
+# Local Netlify folder
+.netlify
