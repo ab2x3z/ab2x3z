@@ -115,3 +115,22 @@ canvas {
     background-color: #4caf50;
     border-radius: 15px;
 }
+
+.menu-button {
+    position: absolute;
+    bottom: 2rem;
+    right: 0rem;
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-family: 'Arial', sans-serif;
+    z-index: 1000;
+    transition: background-color 0.3s;
+}
+
+.menu-button:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
