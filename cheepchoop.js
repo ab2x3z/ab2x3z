@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 // Add enum at the start of the file
 const LevelType = {
@@ -194,6 +196,55 @@ const arrowMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
 arrow.position.z = -10;
 scene.add(arrow);
+
+// ******************************  Create Text  ******************************
+const fontLoader = new FontLoader(manager);
+
+fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font) {
+    const movementTextGeometry = new TextGeometry('Use wasd or arrow\n keys to move.', {
+        font: font,
+        size: 3,
+        height: 0.5,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.03,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 5
+    });
+    const jumpTextGeometry = new TextGeometry('Use space to jump\n and shift to run.', {
+        font: font,
+        size: 3,
+        height: 0.5,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.03,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 5
+    });
+
+    movementTextGeometry.computeBoundingBox();
+    jumpTextGeometry.computeBoundingBox();
+    const movementTextWidth = movementTextGeometry.boundingBox.max.x - movementTextGeometry.boundingBox.min.x;
+    const jumpTextWidth = jumpTextGeometry.boundingBox.max.x - jumpTextGeometry.boundingBox.min.x;
+
+    const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    const movementTextMesh = new THREE.Mesh(movementTextGeometry, textMaterial);
+    const jumpTextMesh = new THREE.Mesh(jumpTextGeometry, textMaterial);
+
+    movementTextMesh.scale.set(1, 1, 0.05);
+    jumpTextMesh.scale.set(1, 1, 0.05);
+
+
+    movementTextMesh.position.set(-40, 15, movementTextWidth / 2);
+    movementTextMesh.rotation.set(0, Math.PI / 2, 0);
+    jumpTextMesh.position.set(40, 15, -jumpTextWidth / 2);
+    jumpTextMesh.rotation.set(0, -Math.PI / 2, 0);
+
+
+    scene.add(movementTextMesh, jumpTextMesh);
+});
 
 // ******************************  Create Platforms  ******************************
 function createPlatforms(manager, levels) {
