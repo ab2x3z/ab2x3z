@@ -376,8 +376,8 @@ function checkSphereBoxCollision(sphere, box) {
     const boxMax = new THREE.Vector3().copy(boxPosition).add(boxSize);
 
     // Check if the sphere is outside the platform's X and Z bounds
-    if (spherePosition.x < boxMin.x - sphereRadius || spherePosition.x > boxMax.x + sphereRadius ||
-        spherePosition.z < boxMin.z - sphereRadius || spherePosition.z > boxMax.z + sphereRadius) {
+    if (spherePosition.x < boxMin.x || spherePosition.x > boxMax.x ||
+        spherePosition.z < boxMin.z || spherePosition.z > boxMax.z) {
         return false; // Sphere is outside the platform's bounds
     }
 
