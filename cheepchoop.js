@@ -341,7 +341,7 @@ document.addEventListener('keydown', (event) => {
             document.getElementById('currentLevel').textContent = previousLevel;
         }
     }
-});
+    });
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key.toLowerCase()] = false;
 });
@@ -676,7 +676,7 @@ function move() {
     if (currentHeight > maxHeight) {
         maxHeight = currentHeight;
         document.getElementById('maxHeight').textContent = `${maxHeight} m`;
-    }
+            }
 
     // Adjust camera to follow the player
     const cameraOffset = new THREE.Vector3(0, 10, 30);
@@ -694,6 +694,73 @@ function move() {
         sphere.quaternion.set(0, 0, 0, 1);
         yaw = 0;
         pitch = 0;
+    }
+}
+
+// Add these functions near the end of the file, before the animate() function
+async function submitHighScore() {
+    const playerName = prompt('Congratulations! Enter your name for the high score:');
+    if (!playerName) return;
+
+    try {
+        const response = await fetch('/.netlify/functions/submitScore', {
+            method: 'POST',
+            body: JSON.stringify({
+                playerName,
+                score: maxHeight,
+                level: maxLevel.name
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to submit score');
+
+        const result = await response.json();
+        console.log('Score submitted:', result);
+        
+        // Show the high scores
+        await displayHighScores();
+    } catch (error) {
+        console.error('Error submitting score:', error);
+        alert('Failed to submit score. Please try again.');
+    }
+}
+
+async function displayHighScores() {
+    try {
+        const response = await fetch('/.netlify/functions/getHighScores');
+        if (!response.ok) throw new Error('Failed to get high scores');
+
+        const scores = await response.json();
+        
+        // Create and show high scores modal
+        const modal = document.createElement('div');
+        modal.className = 'high-scores-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h2>High Scores</h2>
+                <table>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Level</th>
+                    </tr>
+                    ${scores.map((score, index) => `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${score.PLAYER_NAME}</td>
+                            <td>${score.SCORE}m</td>
+                            <td>${score.LEVEL}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+                <button onclick="this.parentElement.parentElement.remove()">Close</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch (error) {
+        console.error('Error getting high scores:', error);
+        alert('Failed to load high scores.');
     }
 }
 
