@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
     });
 
     const result = await connection.execute(
-      `SELECT player_name, score, level, created_at 
+      `SELECT player_name, score, lastLevel, created_at 
        FROM highscores 
        ORDER BY score DESC 
        FETCH FIRST 10 ROWS ONLY`,

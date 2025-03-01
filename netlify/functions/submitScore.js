@@ -25,7 +25,7 @@ exports.handler = async (event, context) => {
 
     // Insert score
     const result = await connection.execute(
-      `INSERT INTO highscores (player_name, score, level, created_at) 
+      `INSERT INTO highscores (player_name, score, lastLevel, created_at) 
        VALUES (:1, :2, :3, CURRENT_TIMESTAMP)`,
       [playerName, score, level],
       { autoCommit: true }

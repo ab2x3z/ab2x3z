@@ -341,7 +341,13 @@ document.addEventListener('keydown', (event) => {
             document.getElementById('currentLevel').textContent = previousLevel;
         }
     }
-    });
+    if (event.key.toLowerCase() === 'o') {
+        displayHighScores();
+    }
+    if (event.key.toLowerCase() === 'p') { 
+        submitHighScore();
+    }
+});
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key.toLowerCase()] = false;
 });
@@ -699,16 +705,19 @@ function move() {
 
 // Add these functions near the end of the file, before the animate() function
 async function submitHighScore() {
-    const playerName = prompt('Congratulations! Enter your name for the high score:');
+    const playerName = 'test';
     if (!playerName) return;
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 playerName,
-                score: maxHeight,
-                level: maxLevel.name
+                score: 69,
+                level: 'test'
             })
         });
 

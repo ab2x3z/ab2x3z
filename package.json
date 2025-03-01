@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "netlify-cli": "^19.0.0",
+    "oracledb": "^6.8.0",
     "three": "^0.173.0"
   }
 }
