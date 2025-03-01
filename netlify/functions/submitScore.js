@@ -1,6 +1,6 @@
 const oracledb = require('oracledb');
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   console.log('submitScore function invoked');
 
   if (event.httpMethod !== 'POST') {
