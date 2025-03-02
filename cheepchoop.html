@@ -13,7 +13,17 @@
   <div id="mobile-warning">
     This application is not intended for mobile devices. Please use a desktop browser for the best experience.
   </div>
-  <a href="mainmenu.html" class="menu-button">Back to Menu</a>
+  <button id="submitScore" class="menu-button">Submit Score</button>
+  <dialog id="usernameDialog">
+    <form method="dialog">
+      <h2>Submit Your Score</h2>
+      <input type="text" id="username" placeholder="Enter your username" required>
+      <div class="dialog-buttons">
+        <button type="submit">Submit</button>
+        <button type="button" id="cancelDialog">Cancel</button>
+      </div>
+    </form>
+  </dialog>
   <div id="progressBarContainer">
     <div id="progressBar"></div>
   </div>

@@ -327,7 +327,10 @@ scene.background = skybox;
 let userHasInteracted = false;
 let previousLevel;
 const keysPressed = {};
+let isDialogOpen = false;
+
 document.addEventListener('keydown', (event) => {
+    if (isDialogOpen) return; // Ignore input if dialog is open
     keysPressed[event.key.toLowerCase()] = true;
     userHasInteracted = true;
     playBackgroundMusic();
@@ -349,6 +352,7 @@ document.addEventListener('keydown', (event) => {
     }
 });
 document.addEventListener('keyup', (event) => {
+    if (isDialogOpen) return; // Ignore input if dialog is open
     keysPressed[event.key.toLowerCase()] = false;
 });
 document.addEventListener('click', function () {
@@ -439,6 +443,7 @@ function pointerLockChange() {
 
 // Mouse movement handler
 function onMouseMove(event) {
+    if (isDialogOpen) return; // Ignore input if dialog is open
     if (isPointerLocked) {
         const movementX = event.movementX || event.mozMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || 0;
@@ -703,10 +708,24 @@ function move() {
     }
 }
 
-// Add these functions near the end of the file, before the animate() function
-async function submitHighScore() {
-    const playerName = 'test';
-    if (!playerName) return;
+const dialog = document.getElementById('usernameDialog');
+const submitButton = document.getElementById('submitScore');
+const cancelButton = document.getElementById('cancelDialog');
+
+submitButton.addEventListener('click', () => {
+    dialog.showModal();
+    isDialogOpen = true;
+});
+
+cancelButton.addEventListener('click', () => {
+    dialog.close();
+    isDialogOpen = false;
+});
+
+dialog.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    if (!username) return;
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {
@@ -715,9 +734,9 @@ async function submitHighScore() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                playerName,
-                score: 69,
-                level: 'test'
+                playerName: username,
+                score: maxHeight,
+                level: maxLevel.name
             })
         });
 
@@ -726,11 +745,13 @@ async function submitHighScore() {
         const result = await response.json();
         console.log('Score submitted:', result);
         
-        // Show the high scores
-        await displayHighScores();
+        isDialogOpen = false; // Reset dialog state
+        // Redirect to main menu
+        window.location.href = 'mainmenu.html';
     } catch (error) {
         console.error('Error submitting score:', error);
         alert('Failed to submit score. Please try again.');
+        isDialogOpen = false; // Reset dialog state on error
     }
 }
 

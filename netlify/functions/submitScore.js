@@ -22,27 +22,27 @@ export const handler = async (event, context) => {
       };
     }
 
-    // Initialize Oracle connection
-    console.log('Initializing Oracle connection');
-    const connection = await oracledb.getConnection({
-      user: process.env.ORACLE_USER,
-      password: process.env.ORACLE_PASSWORD,
-      connectString: process.env.ORACLE_CONNECTION_STRING
+    const payload = {
+      player_name: playerName,
+      score: Number(score).toString(),
+      lastlevel: level
+    };
+
+    const response = await fetch(process.env.ORACLE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
     });
-    console.log('Oracle connection established');
 
-    // Insert score
-    console.log('Inserting score into database');
-    const result = await connection.execute(
-      `INSERT INTO highscores (player_name, score, lastLevel, created_at) 
-       VALUES (:1, :2, :3, CURRENT_TIMESTAMP)`,
-      [playerName, score, level],
-      { autoCommit: true }
-    );
-    console.log('Score inserted successfully', result);
-
-    await connection.close();
-    console.log('Oracle connection closed');
+    let result;
+    try {
+      result = await response.json();
+      console.log('Response parsed successfully:', result);
+    } catch (parseError) {
+        throw parseError;
+    }
 
     return {
       statusCode: 200,
