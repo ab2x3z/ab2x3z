@@ -38,12 +38,7 @@ export const handler = async (event, context) => {
       result = await response.json();
       console.log('Response parsed successfully:', result);
     } catch (parseError) {
-      if (response.status === 500) {
-        console.log('Got 500 status but assuming successful insertion');
-        result = { success: true, data: payload };
-      } else {
         throw parseError;
-      }
     }
 
     return {

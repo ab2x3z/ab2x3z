@@ -324,7 +324,10 @@ scene.background = skybox;
 let userHasInteracted = false;
 //let previousLevel;
 const keysPressed = {};
+let isDialogOpen = false;
+
 document.addEventListener('keydown', (event) => {
+    if (isDialogOpen) return; // Ignore input if dialog is open
     keysPressed[event.key.toLowerCase()] = true;
     userHasInteracted = true;
     playBackgroundMusic();
@@ -340,6 +343,7 @@ document.addEventListener('keydown', (event) => {
     // }
 });
 document.addEventListener('keyup', (event) => {
+    if (isDialogOpen) return; // Ignore input if dialog is open
     keysPressed[event.key.toLowerCase()] = false;
 });
 document.addEventListener('click', function () {
@@ -430,6 +434,7 @@ function pointerLockChange() {
 
 // Mouse movement handler
 function onMouseMove(event) {
+    if (isDialogOpen) return; // Ignore input if dialog is open
     if (isPointerLocked) {
         const movementX = event.movementX || event.mozMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || 0;
@@ -677,16 +682,18 @@ const cancelButton = document.getElementById('cancelDialog');
 
 submitButton.addEventListener('click', () => {
     dialog.showModal();
+    isDialogOpen = true;
 });
 
 cancelButton.addEventListener('click', () => {
     dialog.close();
+    isDialogOpen = false;
 });
 
 dialog.querySelector('form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const playerName = document.getElementById('playerName').value.trim();
-    if (!playerName) return;
+    const username = document.getElementById('username').value.trim();
+    if (!username) return;
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {
@@ -695,7 +702,7 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                playerName: playerName,
+                playerName: username,
                 score: maxHeight,
                 level: maxLevel.name
             })
@@ -706,11 +713,13 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
         const result = await response.json();
         console.log('Score submitted:', result);
         
+        isDialogOpen = false; // Reset dialog state
         // Redirect to main menu
         window.location.href = 'mainmenu.html';
     } catch (error) {
         console.error('Error submitting score:', error);
         alert('Failed to submit score. Please try again.');
+        isDialogOpen = false; // Reset dialog state on error
     }
 });
 
