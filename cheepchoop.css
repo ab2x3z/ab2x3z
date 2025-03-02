@@ -188,3 +188,53 @@ canvas {
 .modal-content button:hover {
     background-color: #45a049;
 }
+
+dialog {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: 2px solid white;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+dialog form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+dialog h2 {
+    margin: 0;
+    text-align: center;
+}
+
+dialog input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid white;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+dialog button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid white;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+}
+
+dialog button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

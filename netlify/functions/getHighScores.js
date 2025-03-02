@@ -9,27 +9,14 @@ export const handler = async (event, context) => {
   }
 
   try {
-    console.log('Initializing Oracle connection');
-    const connection = await oracledb.getConnection({
-      user: process.env.ORACLE_USER,
-      password: process.env.ORACLE_PASSWORD,
-      connectString: process.env.ORACLE_CONNECTION_STRING
-    });
-    console.log('Oracle connection established');
+    const response = await fetch(process.env.ORACLE);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    console.log('Executing query to fetch high scores');
-    const result = await connection.execute(
-      `SELECT player_name, score, lastLevel, created_at 
-       FROM highscores 
-       ORDER BY score DESC 
-       FETCH FIRST 10 ROWS ONLY`,
-      [],
-      { outFormat: oracledb.OUT_FORMAT_OBJECT }
-    );
-    console.log('Query executed successfully', result);
-
-    await connection.close();
-    console.log('Oracle connection closed');
+    const data = await response.json();
+    console.log('High scores retrieved successfully');
 
     return {
       statusCode: 200,

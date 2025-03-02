@@ -341,12 +341,6 @@ document.addEventListener('keydown', (event) => {
             document.getElementById('currentLevel').textContent = previousLevel;
         }
     }
-    if (event.key.toLowerCase() === 'o') {
-        displayHighScores();
-    }
-    if (event.key.toLowerCase() === 'p') { 
-        submitHighScore();
-    }
 });
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key.toLowerCase()] = false;
@@ -703,10 +697,22 @@ function move() {
     }
 }
 
-// Add these functions near the end of the file, before the animate() function
-async function submitHighScore() {
-    const playerName = 'test';
-    if (!playerName) return;
+const dialog = document.getElementById('usernameDialog');
+const submitButton = document.getElementById('submitScore');
+const cancelButton = document.getElementById('cancelDialog');
+
+submitButton.addEventListener('click', () => {
+    dialog.showModal();
+});
+
+cancelButton.addEventListener('click', () => {
+    dialog.close();
+});
+
+dialog.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    if (!username) return;
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {
@@ -715,9 +721,9 @@ async function submitHighScore() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                playerName,
-                score: 69,
-                level: 'test'
+                playerName: username,
+                score: maxHeight,
+                level: maxLevel.name
             })
         });
 
@@ -726,52 +732,13 @@ async function submitHighScore() {
         const result = await response.json();
         console.log('Score submitted:', result);
         
-        // Show the high scores
-        await displayHighScores();
+        // Redirect to main menu
+        window.location.href = 'mainmenu.html';
     } catch (error) {
         console.error('Error submitting score:', error);
         alert('Failed to submit score. Please try again.');
     }
-}
-
-async function displayHighScores() {
-    try {
-        const response = await fetch('/.netlify/functions/getHighScores');
-        if (!response.ok) throw new Error('Failed to get high scores');
-
-        const scores = await response.json();
-        
-        // Create and show high scores modal
-        const modal = document.createElement('div');
-        modal.className = 'high-scores-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h2>High Scores</h2>
-                <table>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Score</th>
-                        <th>Level</th>
-                    </tr>
-                    ${scores.map((score, index) => `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${score.PLAYER_NAME}</td>
-                            <td>${score.SCORE}m</td>
-                            <td>${score.LEVEL}</td>
-                        </tr>
-                    `).join('')}
-                </table>
-                <button onclick="this.parentElement.parentElement.remove()">Close</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    } catch (error) {
-        console.error('Error getting high scores:', error);
-        alert('Failed to load high scores.');
-    }
-}
+});
 
 // ******************************  Game Loop  ******************************
 function animate() {
