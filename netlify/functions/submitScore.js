@@ -39,7 +39,7 @@ export const handler = async (event, context) => {
     let result;
     try {
       result = await response.json();
-      console.log('Response parsed successfully:', result);
+      console.log('Response parsed successfully');
     } catch (parseError) {
         throw parseError;
     }

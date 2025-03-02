@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Add enum at the start of the file
 const LevelType = {
@@ -28,7 +29,9 @@ const platformLevels = [
         ao: 'Planks020_1K-JPG_AmbientOcclusion.jpg',
         displacement: 'Planks020_1K-JPG_Displacement.jpg',
         roughness: 'Planks020_1K-JPG_Roughness.jpg',
-        size: 69
+        size: 69,
+        height: 69,
+        geometry: 'box'
     },
     {
         type: LevelType.BRICK,
@@ -37,7 +40,9 @@ const platformLevels = [
         ao: 'Bricks082A_1K-JPG_AmbientOcclusion.jpg',
         displacement: 'Bricks082A_1K-JPG_Displacement.jpg',
         roughness: 'Bricks082A_1K-JPG_Roughness.jpg',
-        size: 50
+        size: 50,
+        height: 69,
+        geometry: 'box'
     },
     {
         type: LevelType.SAND,
@@ -46,7 +51,9 @@ const platformLevels = [
         ao: 'Ground080_1K-JPG_AmbientOcclusion.jpg',
         displacement: 'Ground080_1K-JPG_Displacement.jpg',
         roughness: 'Ground080_1K-JPG_Roughness.jpg',
-        size: 40
+        size: 40,
+        height: 50,
+        geometry: 'cone'
     },
     {
         type: LevelType.MARBLE,
@@ -54,7 +61,9 @@ const platformLevels = [
         normal: 'Marble012_1K-JPG_NormalGL.jpg',
         displacement: 'Marble012_1K-JPG_Displacement.jpg',
         roughness: 'Marble012_1K-JPG_Roughness.jpg',
-        size: 30
+        size: 30,
+        height: 69,
+        geometry: 'box'
     },
     {
         type: LevelType.OBSIDIAN,
@@ -62,19 +71,30 @@ const platformLevels = [
         normal: 'Obsidian006_1K-JPG_NormalGL.jpg',
         displacement: 'Obsidian006_1K-JPG_Displacement.jpg',
         roughness: 'Obsidian006_1K-JPG_Roughness.jpg',
-        size: 20
+        size: 20,
+        height: 69,
+        geometry: 'box'
     }
 ];
 
+// ******************************  Scene Setup  ******************************
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({
+    canvas: document.querySelector('#bg')
+});
+
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.render(scene, camera);
+
+// ******************************  Loading Manager  ******************************
 const manager = new THREE.LoadingManager();
 const progressBar = document.getElementById('progressBar');
 const progressBarContainer = document.getElementById('progressBarContainer');
 
-manager.onStart = function (url, itemsLoaded, itemsTotal) {
-    progressBarContainer.style.display = 'block';
-};
-
-manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+manager.onStart = () => progressBarContainer.style.display = 'block';
+manager.onProgress = (url, itemsLoaded, itemsTotal) =>
     progressBar.style.width = (itemsLoaded / itemsTotal * 100) + '%';
 };
 
@@ -194,14 +214,14 @@ const extrudeSettings = {
 const arrowGeometry = new THREE.ExtrudeGeometry(arrowShape, extrudeSettings);
 const arrowMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-arrow.position.z = -10;
+arrow.position.z = 32;
 scene.add(arrow);
 
 // ******************************  Create Text  ******************************
 const fontLoader = new FontLoader(manager);
 
 fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font) {
-    const movementTextGeometry = new TextGeometry('Use wasd or arrow\n keys to move.', {
+    const moveTextGeometry = new TextGeometry('Use wasd or arrow\n keys to move.', {
         font: font,
         size: 3,
         height: 0.5,
@@ -223,30 +243,66 @@ fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font)
         bevelOffset: 0,
         bevelSegments: 5
     });
+    const lookTextGeometry = new TextGeometry('Use the mouse to\n look around', {
+        font: font,
+        size: 3,
+        height: 0.5,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.03,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 5
+    });
 
-    movementTextGeometry.computeBoundingBox();
+    moveTextGeometry.computeBoundingBox();
     jumpTextGeometry.computeBoundingBox();
-    const movementTextWidth = movementTextGeometry.boundingBox.max.x - movementTextGeometry.boundingBox.min.x;
+    lookTextGeometry.computeBoundingBox();
+
+    const moveTextWidth = moveTextGeometry.boundingBox.max.x - moveTextGeometry.boundingBox.min.x;
     const jumpTextWidth = jumpTextGeometry.boundingBox.max.x - jumpTextGeometry.boundingBox.min.x;
+    const lookTextWidth = lookTextGeometry.boundingBox.max.x - lookTextGeometry.boundingBox.min.x;
 
     const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const movementTextMesh = new THREE.Mesh(movementTextGeometry, textMaterial);
+    const moveTextMesh = new THREE.Mesh(moveTextGeometry, textMaterial);
     const jumpTextMesh = new THREE.Mesh(jumpTextGeometry, textMaterial);
+    const lookTextMesh = new THREE.Mesh(lookTextGeometry, textMaterial);
 
-    movementTextMesh.scale.set(1, 1, 0.05);
+    moveTextMesh.scale.set(1, 1, 0.05);
     jumpTextMesh.scale.set(1, 1, 0.05);
+    lookTextMesh.scale.set(1, 1, 0.05);
 
 
-    movementTextMesh.position.set(-40, 15, movementTextWidth / 2);
-    movementTextMesh.rotation.set(0, Math.PI / 2, 0);
+    moveTextMesh.position.set(-40, 15, moveTextWidth / 2);
+    moveTextMesh.rotation.set(0, Math.PI / 2, 0);
     jumpTextMesh.position.set(40, 15, -jumpTextWidth / 2);
     jumpTextMesh.rotation.set(0, -Math.PI / 2, 0);
+    lookTextMesh.position.set(-lookTextWidth / 2, 15, -35);
+    lookTextMesh.rotation.set(0, 0, 0);
 
 
-    scene.add(movementTextMesh, jumpTextMesh);
+    scene.add(moveTextMesh, jumpTextMesh, lookTextMesh);
 });
 
 // ******************************  Create Platforms  ******************************
+const loader = new GLTFLoader();
+
+loader.load('assets/glTFs/roundPlatform/scene.gltf', function (gltf) {
+
+    const model = gltf.scene;
+
+    // --- SCALE ---
+    model.scale.set(10, 10, 10);
+
+    // --- POSITION ---
+    model.position.set(0, 1, 0);
+
+    scene.add(model);
+}, undefined, function (error) {
+
+    console.error(error);
+
+});
 function createPlatforms(manager, levels) {
     const platforms = [];
     let lastPlatformPosition = new THREE.Vector3(0, 0, 0);
@@ -254,8 +310,16 @@ function createPlatforms(manager, levels) {
     levels.forEach((level, levelIndex) => {
         const numberOfPlatforms = levelIndex === levels.length - 1 ? 100 : 10; // Different count for last level
         for (let i = 0; i < numberOfPlatforms; i++) {
-            let size = level.size + (Math.random() * level.size / 2 - 10);
-            const geometryPlatform = new THREE.BoxGeometry(size, 3, size);
+
+            let geometryPlatform;
+            switch (level.geometry) {
+                case 'box':
+                    geometryPlatform = new THREE.BoxGeometry(level.size + (Math.random() * level.size / 2 - 10), 3, level.size + (Math.random() * level.size / 2 - 10));
+                    break;
+                case 'cone':
+                    geometryPlatform = new THREE.ConeGeometry(level.size + (Math.random() * level.size / 2 - 10), level.size + (Math.random() * level.size / 2 - 10), 32);
+                    break;
+            }
             const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
             const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
             const displacement = loadTexture(manager, `assets/platforms/${level.displacement}`);
@@ -274,7 +338,7 @@ function createPlatforms(manager, levels) {
             platform.levelType = level.type;
 
             let newPosition = new THREE.Vector3();
-            newPosition.y = lastPlatformPosition.y + 69;
+            newPosition.y = lastPlatformPosition.y + level.height;
 
             let angle = Math.random() * 2 * Math.PI;
             let horizontalOffset = new THREE.Vector3(
@@ -287,6 +351,8 @@ function createPlatforms(manager, levels) {
             newPosition.z = lastPlatformPosition.z + horizontalOffset.z;
 
             platform.position.copy(newPosition);
+            if (level.geometry == 'cone') platform.rotateX(Math.PI);
+
 
             platforms.push(platform);
             lastPlatformPosition.copy(newPosition);
@@ -687,7 +753,7 @@ function move() {
     if (currentHeight > maxHeight) {
         maxHeight = currentHeight;
         document.getElementById('maxHeight').textContent = `${maxHeight} m`;
-            }
+    }
 
     // Adjust camera to follow the player
     const cameraOffset = new THREE.Vector3(0, 10, 30);
@@ -744,7 +810,7 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
 
         const result = await response.json();
         console.log('Score submitted:', result);
-        
+
         isDialogOpen = false; // Reset dialog state
         // Redirect to main menu
         window.location.href = 'mainmenu.html';
