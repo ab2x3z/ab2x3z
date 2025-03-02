@@ -11,38 +11,11 @@ export const handler = async (event, context) => {
   try {
     console.log('Parsing event body');
     const { playerName, score, level } = JSON.parse(event.body);
-    console.log('Parsed ', { playerName, score, level });
-
-    // Validate input
-    if (!playerName || !score || !level) {
-      console.warn('Missing required fields');
+    
+    if (!playerName || typeof playerName !== 'string') {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Missing required fields' })
-      };
-    }
-
-    if (!score || isNaN(Number(score))) {
-      console.log('Invalid score value:', score);
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ error: 'Invalid score value' })
-      };
-    }
-
-    if (!level || typeof level !== 'string') {
-      console.log('Invalid level value:', level);
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ error: 'Invalid level value' })
       };
     }
 
@@ -52,8 +25,6 @@ export const handler = async (event, context) => {
       lastlevel: level
     };
 
-    console.log('Sending payload:', payload); // Debug log
-
     const response = await fetch(process.env.ORACLE, {
       method: 'POST',
       headers: {
@@ -62,13 +33,11 @@ export const handler = async (event, context) => {
       body: JSON.stringify(payload)
     });
 
-    // Check if the data was actually inserted despite error response
     let result;
     try {
       result = await response.json();
       console.log('Response parsed successfully:', result);
     } catch (parseError) {
-      // If we can't parse the response but got a 500, assume success
       if (response.status === 500) {
         console.log('Got 500 status but assuming successful insertion');
         result = { success: true, data: payload };
@@ -83,8 +52,7 @@ export const handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Error submitting score:', error);
-    console.error('Error details:', error.message, error.stack);
+    console.error('Error details:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to submit score', details: error.message })

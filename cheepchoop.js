@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
-// Add enum at the start of the file
+// ******************************  Enums and Constants  ******************************
 const LevelType = {
     GROUND: { value: 0, name: 'Ground' },
     WOOD: { value: 1, name: 'Wood' },
@@ -12,7 +12,6 @@ const LevelType = {
     OBSIDIAN: { value: 5, name: 'Obsidian' }
 };
 
-// Constants
 const RepeatFactor = 100;
 const gravity = -0.4;
 const jumpHeight = 8;
@@ -66,30 +65,48 @@ const platformLevels = [
     }
 ];
 
+// ******************************  Scene Setup  ******************************
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({
+    canvas: document.querySelector('#bg')
+});
+
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.render(scene, camera);
+
+// ******************************  Loading Manager  ******************************
 const manager = new THREE.LoadingManager();
 const progressBar = document.getElementById('progressBar');
 const progressBarContainer = document.getElementById('progressBarContainer');
 
-manager.onStart = function (url, itemsLoaded, itemsTotal) {
-    progressBarContainer.style.display = 'block';
-};
-
-manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+manager.onStart = () => progressBarContainer.style.display = 'block';
+manager.onProgress = (url, itemsLoaded, itemsTotal) => 
     progressBar.style.width = (itemsLoaded / itemsTotal * 100) + '%';
-};
-
-manager.onLoad = function () {
+manager.onLoad = () => {
     progressBarContainer.style.display = 'none';
     document.getElementById('bg').style.display = 'block';
 };
 
+// ******************************  Texture Loading Utilities  ******************************
+function loadTexture(manager, path) {
+    return new THREE.TextureLoader(manager).load(path);
+}
+
+function loadAndRepeatTexture(manager, path, repeatFactor) {
+    const texture = loadTexture(manager, path);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(repeatFactor, repeatFactor);
+    return texture;
+}
+
+// ******************************  Audio Management  ******************************
 let backgroundMusic;
 
 function setupBackgroundMusic(music = 'Mind-Bender.mp3') {
-    if (backgroundMusic) {
-        if (backgroundMusic.src.endsWith(music)) return; // Don't reload same music
-        backgroundMusic.pause();
-    }
+    if (backgroundMusic && backgroundMusic.src.endsWith(music)) return;
+    if (backgroundMusic) backgroundMusic.pause();
 
     backgroundMusic = new Audio(`assets/sounds/${music}`);
     backgroundMusic.loop = true;
@@ -98,27 +115,14 @@ function setupBackgroundMusic(music = 'Mind-Bender.mp3') {
 
 function playBackgroundMusic() {
     if (!backgroundMusic) setupBackgroundMusic();
-    backgroundMusic.play().catch(error => {
-        console.log("Background music play failed:", error);
-    });
+    backgroundMusic.play().catch(error => console.log("Background music play failed:", error));
 }
 
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-const renderer = new THREE.WebGLRenderer({
-    canvas: document.querySelector('#bg')
-});
-
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-renderer.render(scene, camera);
-
-// Function to load textures
-function loadTexture(manager, path) {
-    return new THREE.TextureLoader(manager).load(path);
+function playSound(soundPath, volume = 0.2) {
+    if (!userHasInteracted) return;
+    const sound = new Audio(soundPath);
+    sound.volume = volume;
+    sound.play().catch(error => console.log("Audio play failed:", error));
 }
 
 // ******************************  Create Player  ******************************
@@ -149,13 +153,6 @@ const groundSize = 5000;
 const groundSegments = 500;
 const geometryPlane = new THREE.PlaneGeometry(groundSize, groundSize, groundSegments, groundSegments);
 
-const loadAndRepeatTexture = (manager, path, repeatFactor) => {
-    const texture = loadTexture(manager, path);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(repeatFactor, repeatFactor);
-    return texture;
-};
 const grassMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_Color.jpg', RepeatFactor);
 const grassNormalMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_NormalGL.jpg', RepeatFactor);
 const grassAoMap = loadAndRepeatTexture(manager, 'assets/ground/Grass001_1K-JPG_AmbientOcclusion.jpg', RepeatFactor);
@@ -325,22 +322,22 @@ scene.background = skybox;
 
 // Get key presses
 let userHasInteracted = false;
-let previousLevel;
+//let previousLevel;
 const keysPressed = {};
 document.addEventListener('keydown', (event) => {
     keysPressed[event.key.toLowerCase()] = true;
     userHasInteracted = true;
     playBackgroundMusic();
 
-    if (event.key === 'g') {
-        godMode = !godMode;
-        if (godMode) {
-            previousLevel = document.getElementById('currentLevel').textContent;
-            document.getElementById('currentLevel').textContent = 'GodMode';
-        } else {
-            document.getElementById('currentLevel').textContent = previousLevel;
-        }
-    }
+    // if (event.key === 'g') {
+    //     godMode = !godMode;
+    //     if (godMode) {
+    //         previousLevel = document.getElementById('currentLevel').textContent;
+    //         document.getElementById('currentLevel').textContent = 'GodMode';
+    //     } else {
+    //         document.getElementById('currentLevel').textContent = previousLevel;
+    //     }
+    // }
 });
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key.toLowerCase()] = false;
@@ -453,39 +450,16 @@ renderer.domElement.addEventListener('click', function () {
     lockPointer();
 });
 
-function playSound(soundPath, volume = 0.2) {
-    if (!userHasInteracted) return;
-    const sound = new Audio(soundPath);
-    sound.volume = volume;
-    sound.play().catch(error => {
-        console.log("Audio play failed:", error);
-    });
-}
-
 function getHeightColor(height) {
     const maxHeight = 1000;
     const value = Math.min(height, maxHeight) / maxHeight;
 
-    let r, g, b;
-
     if (value < 0.33) {
-        // Green to Yellow (0 to 0.33)
-        r = Math.floor(255 * (value * 3));
-        g = 255;
-        b = 0;
+        return `rgb(${Math.floor(255 * (value * 3))}, 255, 0)`; // Green to yellow
     } else if (value < 0.66) {
-        // Yellow to Red (0.33 to 0.66)
-        r = 255;
-        g = Math.floor(255 * (1 - ((value - 0.33) * 3)));
-        b = 0;
-    } else {
-        // Red to Black (0.66 to 1.0)
-        r = Math.floor(255 * (1 - ((value - 0.66) * 3)));
-        g = 0;
-        b = 0;
+        return `rgb(255, ${Math.floor(255 * (1 - ((value - 0.33) * 3)))}, 0)`; // Yellow to red
     }
-
-    return `rgb(${r}, ${g}, ${b})`;
+    return `rgb(${Math.floor(255 * (1 - ((value - 0.66) * 3)))}, 0, 0)`; // Red to black
 }
 
 function move() {
@@ -711,8 +685,8 @@ cancelButton.addEventListener('click', () => {
 
 dialog.querySelector('form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = document.getElementById('username').value.trim();
-    if (!username) return;
+    const playerName = document.getElementById('playerName').value.trim();
+    if (!playerName) return;
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {
@@ -721,7 +695,7 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                playerName: username,
+                playerName: playerName,
                 score: maxHeight,
                 level: maxLevel.name
             })
