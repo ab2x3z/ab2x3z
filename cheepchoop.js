@@ -76,13 +76,17 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.render(scene, camera);
 
+// Add after scene creation, before loading platforms
+const frustum = new THREE.Frustum();
+const cameraViewProjectionMatrix = new THREE.Matrix4();
+
 // ******************************  Loading Manager  ******************************
 const manager = new THREE.LoadingManager();
 const progressBar = document.getElementById('progressBar');
 const progressBarContainer = document.getElementById('progressBarContainer');
 
 manager.onStart = () => progressBarContainer.style.display = 'block';
-manager.onProgress = (url, itemsLoaded, itemsTotal) => 
+manager.onProgress = (url, itemsLoaded, itemsTotal) =>
     progressBar.style.width = (itemsLoaded / itemsTotal * 100) + '%';
 manager.onLoad = () => {
     progressBarContainer.style.display = 'none';
@@ -265,27 +269,47 @@ function createPlatforms(manager, levels) {
     const platforms = [];
     let lastPlatformPosition = new THREE.Vector3(0, 0, 0);
 
+    // Pre-create geometries and materials for each level
+    const levelMaterials = levels.map(level => {
+        const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
+        const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
+        const displacement = loadTexture(manager, `assets/platforms/${level.displacement}`);
+        const roughness = loadTexture(manager, `assets/platforms/${level.roughness}`);
+
+        if (level.ao) {
+            const ao = loadTexture(manager, `assets/platforms/${level.ao}`);
+            return new THREE.MeshStandardMaterial({
+                map: texture,
+                normalMap: normal,
+                aoMap: ao,
+                displacementMap: displacement,
+                roughnessMap: roughness,
+                displacementScale: 0
+            });
+        }
+        return new THREE.MeshStandardMaterial({
+            map: texture,
+            normalMap: normal,
+            displacementMap: displacement,
+            roughnessMap: roughness,
+            displacementScale: 0
+        });
+    });
+
     levels.forEach((level, levelIndex) => {
-        const numberOfPlatforms = levelIndex === levels.length - 1 ? 100 : 10; // Different count for last level
+        const numberOfPlatforms = levelIndex === levels.length - 1 ? 100 : 10;
+
         for (let i = 0; i < numberOfPlatforms; i++) {
-            const geometryPlatform = new THREE.BoxGeometry(level.size + (Math.random() * level.size / 2 - 10), 3, level.size + (Math.random() * level.size / 2 - 10));
-            const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
-            const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
-            const displacement = loadTexture(manager, `assets/platforms/${level.displacement}`);
-            const roughness = loadTexture(manager, `assets/platforms/${level.roughness}`);
+            const geometryPlatform = new THREE.BoxGeometry(
+                level.size + (Math.random() * level.size / 2 - 10),
+                3,
+                level.size + (Math.random() * level.size / 2 - 10)
+            );
 
-            let materialPlatform;
-            if (level.ao) {
-                const ao = loadTexture(manager, `assets/platforms/${level.ao}`);
-                materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal, aoMap: ao, displacementMap: displacement, roughnessMap: roughness, displacementScale: 0 });
-            } else {
-                materialPlatform = new THREE.MeshStandardMaterial({ map: texture, normalMap: normal, displacementMap: displacement, roughnessMap: roughness, displacementScale: 0 });
-            }
-
-            const platform = new THREE.Mesh(geometryPlatform, materialPlatform);
-
+            const platform = new THREE.Mesh(geometryPlatform, levelMaterials[levelIndex]);
             platform.levelType = level.type;
 
+            // Calculate position
             let newPosition = new THREE.Vector3();
             newPosition.y = lastPlatformPosition.y + 69;
 
@@ -301,12 +325,39 @@ function createPlatforms(manager, levels) {
 
             platform.position.copy(newPosition);
 
+            // Add frustum culling properties
+            platform.frustumCulled = true;
+            platform.visible = false;
+
             platforms.push(platform);
             lastPlatformPosition.copy(newPosition);
         }
     });
 
     return platforms;
+}
+
+function updateVisiblePlatforms(camera, platforms, sphere) {
+    // Update the frustum
+    camera.updateMatrixWorld();
+    camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+    cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
+
+    // Get sphere position for distance culling
+    const spherePosition = sphere.position;
+
+    platforms.forEach(platform => {
+        // Only process platforms within reasonable distance
+        const distance = platform.position.distanceTo(spherePosition);
+        if (distance > 500) {
+            platform.visible = false;
+            return;
+        }
+
+        // Check if platform is in view frustum
+        platform.visible = frustum.intersectsObject(platform);
+    });
 }
 
 const platforms = createPlatforms(manager, platformLevels);
@@ -338,9 +389,9 @@ scene.background = skybox;
 
 // Get key presses
 let userHasInteracted = false;
-//let previousLevel;
 const keysPressed = {};
 let isDialogOpen = false;
+//let previousLevel;
 
 document.addEventListener('keydown', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
@@ -671,7 +722,7 @@ function move() {
     if (currentHeight > maxHeight) {
         maxHeight = currentHeight;
         document.getElementById('maxHeight').textContent = `${maxHeight} m`;
-            }
+    }
 
     // Adjust camera to follow the player
     const cameraOffset = new THREE.Vector3(0, 10, 30);
@@ -728,7 +779,7 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
 
         const result = await response.json();
         console.log('Score submitted:', result);
-        
+
         isDialogOpen = false; // Reset dialog state
         // Redirect to main menu
         window.location.href = 'mainmenu.html';
@@ -743,6 +794,9 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
 function animate() {
     requestAnimationFrame(animate);
     move();
+
+    // Update visible platforms
+    updateVisiblePlatforms(camera, platforms, sphere);
 
     if (godMode) {
         sphere.material.color.set(0xff0000);
