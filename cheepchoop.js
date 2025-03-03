@@ -344,19 +344,40 @@ function updateVisiblePlatforms(camera, platforms, sphere) {
     cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
 
-    // Get sphere position for distance culling
-    const spherePosition = sphere.position;
+    // Get sphere and camera positions
+    const spherePosition = sphere.position.clone();
+    const cameraPosition = camera.position.clone();
+    const cameraToSphere = spherePosition.clone().sub(cameraPosition);
+    const distanceToSphere = cameraToSphere.length();
+    cameraToSphere.normalize();
 
     platforms.forEach(platform => {
         // Only process platforms within reasonable distance
         const distance = platform.position.distanceTo(spherePosition);
-        if (distance > 500) {
+        if (distance > 1000) {
             platform.visible = false;
             return;
         }
 
         // Check if platform is in view frustum
-        platform.visible = frustum.intersectsObject(platform);
+        const inFrustum = frustum.intersectsObject(platform);
+        if (!inFrustum) {
+            platform.visible = false;
+            return;
+        }
+
+        // Check if platform is between camera and sphere
+        const cameraToPlatform = platform.position.clone().sub(cameraPosition);
+        const distanceToPlatform = cameraToPlatform.length();
+        cameraToPlatform.normalize();
+
+        // Calculate dot product to determine if platform is in front of sphere
+        const dotProduct = cameraToPlatform.dot(cameraToSphere);
+        
+        // If platform is closer than sphere and roughly in the same direction
+        const isBetweenCameraAndSphere = dotProduct > 0.7 && distanceToPlatform < distanceToSphere;
+
+        platform.visible = inFrustum && !isBetweenCameraAndSphere;
     });
 }
 
