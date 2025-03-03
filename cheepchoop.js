@@ -285,24 +285,24 @@ fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font)
 });
 
 // ******************************  Create Platforms  ******************************
-const loader = new GLTFLoader();
+// const loader = new GLTFLoader(manager);
 
-loader.load('assets/glTFs/roundPlatform/scene.gltf', function (gltf) {
+// loader.load('assets/glTFs/roundPlatform/scene.gltf', function (gltf) {
 
-    const model = gltf.scene;
+//     const model = gltf.scene;
 
-    // --- SCALE ---
-    model.scale.set(10, 10, 10);
+//     // --- SCALE ---
+//     model.scale.set(10, 10, 10);
 
-    // --- POSITION ---
-    model.position.set(0, 1, 0);
+//     // --- POSITION ---
+//     model.position.set(0, 1, 0);
 
-    scene.add(model);
-}, undefined, function (error) {
+//     scene.add(model);
+// }, undefined, function (error) {
 
-    console.error(error);
+//     console.error(error);
 
-});
+// });
 function createPlatforms(manager, levels) {
     const platforms = [];
     let lastPlatformPosition = new THREE.Vector3(0, 0, 0);
@@ -410,12 +410,6 @@ document.addEventListener('keydown', (event) => {
             document.getElementById('currentLevel').textContent = previousLevel;
         }
     }
-    if (event.key.toLowerCase() === 'o') {
-        displayHighScores();
-    }
-    if (event.key.toLowerCase() === 'p') { 
-        submitHighScore();
-    }
 });
 document.addEventListener('keyup', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
@@ -467,6 +461,25 @@ function checkSphereBoxCollision(sphere, box) {
     const distance = spherePosition.distanceTo(closestPoint);
 
     return distance <= sphereRadius;
+}
+
+function checkSphereConeCollision(sphere, cone) {
+    const spherePosition = sphere.position.clone();
+    const conePosition = cone.position.clone();
+    const coneRadius = cone.geometry.parameters.radius;
+
+    // Calculate horizontal distance from sphere center to cone center
+    const horizontalDistance = new THREE.Vector2(
+        spherePosition.x - conePosition.x,
+        spherePosition.z - conePosition.z
+    ).length();
+
+    // Only check collision with the base of the cone (which is at the top since it's upside down)
+    const baseHeight = conePosition.y + 10;  // The base is at the position of the cone
+    const relativeHeight = spherePosition.y - baseHeight;
+
+    // Only consider collision when sphere is near the base height and within the base radius
+    return Math.abs(relativeHeight) <= sphereRadius && horizontalDistance <= (coneRadius + sphereRadius);
 }
 
 // Collision detection function (Sphere - Plane)
@@ -624,7 +637,11 @@ function move() {
     let closestPlatformY = -Infinity; // Keep track of the highest platform we are colliding with
 
     platforms.forEach(platform => {
-        if (checkSphereBoxCollision(sphere, platform)) {
+        const isColliding = platform.geometry.type === 'ConeGeometry' 
+            ? checkSphereConeCollision(sphere, platform)
+            : checkSphereBoxCollision(sphere, platform);
+
+        if (isColliding) {
             // Sphere is colliding with a platform
             if (jumpVelocity < 0) { // Only snap to platform if falling
                 // Determine if this is the closest platform
