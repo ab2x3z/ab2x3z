@@ -191,14 +191,14 @@ const extrudeSettings = {
 const arrowGeometry = new THREE.ExtrudeGeometry(arrowShape, extrudeSettings);
 const arrowMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-arrow.position.z = -10;
+arrow.position.z = 32;
 scene.add(arrow);
 
 // ******************************  Create Text  ******************************
 const fontLoader = new FontLoader(manager);
 
 fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font) {
-    const movementTextGeometry = new TextGeometry('Use wasd or arrow\n keys to move.', {
+    const moveTextGeometry = new TextGeometry('Use wasd or arrow\n keys to move.', {
         font: font,
         size: 3,
         height: 0.5,
@@ -220,29 +220,46 @@ fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font)
         bevelOffset: 0,
         bevelSegments: 5
     });
+    const lookTextGeometry = new TextGeometry('Use the mouse to\n look around', {
+        font: font,
+        size: 3,
+        height: 0.5,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.03,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 5
+    });
 
-    movementTextGeometry.computeBoundingBox();
+    moveTextGeometry.computeBoundingBox();
     jumpTextGeometry.computeBoundingBox();
-    const movementTextWidth = movementTextGeometry.boundingBox.max.x - movementTextGeometry.boundingBox.min.x;
+    lookTextGeometry.computeBoundingBox();
+
+    const moveTextWidth = moveTextGeometry.boundingBox.max.x - moveTextGeometry.boundingBox.min.x;
     const jumpTextWidth = jumpTextGeometry.boundingBox.max.x - jumpTextGeometry.boundingBox.min.x;
+    const lookTextWidth = lookTextGeometry.boundingBox.max.x - lookTextGeometry.boundingBox.min.x;
 
     const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const movementTextMesh = new THREE.Mesh(movementTextGeometry, textMaterial);
+    const moveTextMesh = new THREE.Mesh(moveTextGeometry, textMaterial);
     const jumpTextMesh = new THREE.Mesh(jumpTextGeometry, textMaterial);
+    const lookTextMesh = new THREE.Mesh(lookTextGeometry, textMaterial);
 
-    movementTextMesh.scale.set(1, 1, 0.05);
+    moveTextMesh.scale.set(1, 1, 0.05);
     jumpTextMesh.scale.set(1, 1, 0.05);
+    lookTextMesh.scale.set(1, 1, 0.05);
 
 
-    movementTextMesh.position.set(-40, 15, movementTextWidth / 2);
-    movementTextMesh.rotation.set(0, Math.PI / 2, 0);
+    moveTextMesh.position.set(-40, 15, moveTextWidth / 2);
+    moveTextMesh.rotation.set(0, Math.PI / 2, 0);
     jumpTextMesh.position.set(40, 15, -jumpTextWidth / 2);
     jumpTextMesh.rotation.set(0, -Math.PI / 2, 0);
+    lookTextMesh.position.set(-lookTextWidth / 2, 15, -35);
+    lookTextMesh.rotation.set(0, 0, 0);
 
 
-    scene.add(movementTextMesh, jumpTextMesh);
+    scene.add(moveTextMesh, jumpTextMesh, lookTextMesh);
 });
-
 // ******************************  Create Platforms  ******************************
 function createPlatforms(manager, levels) {
     const platforms = [];
