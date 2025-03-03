@@ -31,6 +31,10 @@ export const handler = async (event, context) => {
       body: JSON.stringify(payload)
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     let result;
     try {
       result = await response.json();

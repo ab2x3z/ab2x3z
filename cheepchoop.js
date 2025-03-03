@@ -616,7 +616,7 @@ function move() {
 
     if (sphere.position.y < lastHeight) {
         fallDistance += lastHeight - sphere.position.y;
-        if (fallDistance > 100 && !isFalling) {
+        if (fallDistance > 100 && !isFalling && sphere.position.y > 700) {
             playSound("assets/sounds/se_common_oh-no.wav");
             isFalling = true;
             setTimeout(() => {
