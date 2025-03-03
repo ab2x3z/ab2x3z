@@ -369,13 +369,11 @@ function updateVisiblePlatforms(camera, platforms, sphere) {
         // Check if platform is between camera and sphere
         const cameraToPlatform = platform.position.clone().sub(cameraPosition);
         const distanceToPlatform = cameraToPlatform.length();
-        cameraToPlatform.normalize();
 
-        // Calculate dot product to determine if platform is in front of sphere
-        const dotProduct = cameraToPlatform.dot(cameraToSphere);
-        
-        // If platform is closer than sphere and roughly in the same direction
-        const isBetweenCameraAndSphere = dotProduct > 0.7 && distanceToPlatform < distanceToSphere;
+        // If platform is closer than sphere and if the camera is pointed upwards
+        const cameraDirection = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+        const isCameraPointingUpward = cameraDirection.y < 0.9 && camera.position.y < sphere.position.y;
+        const isBetweenCameraAndSphere = distanceToPlatform < distanceToSphere && isCameraPointingUpward;
 
         platform.visible = inFrustum && !isBetweenCameraAndSphere;
     });
