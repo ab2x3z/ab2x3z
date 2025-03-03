@@ -1,5 +1,3 @@
-const oracledb = require('oracledb');
-
 export const handler = async (event, context) => {
   console.log('getHighScores function invoked');
 
