@@ -14,7 +14,6 @@ const LevelType = {
 
 const RepeatFactor = 100;
 const gravity = -0.4;
-const jumpHeight = 8;
 const walkSpeed = 1;
 const runSpeed = 2;
 const sensitivity = 0.002;
@@ -410,11 +409,13 @@ scene.background = skybox;
 let userHasInteracted = false;
 const keysPressed = {};
 let isDialogOpen = false;
+let holdingJump = false;
 //let previousLevel;
 
 document.addEventListener('keydown', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
     keysPressed[event.key.toLowerCase()] = true;
+    if (event.key === ' ') { holdingJump = true; }
     userHasInteracted = true;
     playBackgroundMusic();
 
@@ -431,6 +432,7 @@ document.addEventListener('keydown', (event) => {
 document.addEventListener('keyup', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
     keysPressed[event.key.toLowerCase()] = false;
+    if (event.key === ' ') { holdingJump = false; launchSphere(); }
 });
 document.addEventListener('click', function () {
     userHasInteracted = true;
@@ -443,6 +445,7 @@ function keyIsPressed(key) {
 // Game variables
 let grounded = false;
 let jumpVelocity = 0;
+let jumpHeight = 3; // Initialize to 3
 let momentum = new THREE.Vector3(0, 0, 0);
 let maxHeight = 0;
 let maxLevel = LevelType.GROUND;
@@ -557,16 +560,16 @@ function move() {
     let moveDirection = new THREE.Vector3();
     let moveSpeed = keyIsPressed('Shift') ? runSpeed : walkSpeed;
 
-    if (keyIsPressed('w') || keyIsPressed('ArrowUp')) {
+    if ((keyIsPressed('w') || keyIsPressed('ArrowUp')) && !holdingJump) {
         moveDirection.z -= 1;
     }
-    if (keyIsPressed('s') || keyIsPressed('ArrowDown')) {
+    if ((keyIsPressed('s') || keyIsPressed('ArrowDown')) && !holdingJump) {
         moveDirection.z += 1;
     }
-    if (keyIsPressed('a') || keyIsPressed('ArrowLeft')) {
+    if ((keyIsPressed('a') || keyIsPressed('ArrowLeft')) && !holdingJump) {
         moveDirection.x -= 1;
     }
-    if (keyIsPressed('d') || keyIsPressed('ArrowRight')) {
+    if ((keyIsPressed('d') || keyIsPressed('ArrowRight')) && !holdingJump) {
         moveDirection.x += 1;
     }
 
@@ -592,17 +595,35 @@ function move() {
         sphere.position.add(momentum);
     }
 
-    // Jump
-    if (keyIsPressed(' ') && (grounded || godMode)) {
-        if (!godMode) { playSound("assets/sounds/se_common_jump.wav"); }
-        jumpVelocity = jumpHeight;
-        grounded = false;
+    // launch power control
+    if (holdingJump && grounded) {
+        if (!sphere.powerDirection) sphere.powerDirection = 1;
+        
+        jumpHeight += 0.2 * sphere.powerDirection;
+        
+        if (jumpHeight >= 10) {
+            jumpHeight = 10;
+            sphere.powerDirection = -1;
+        } else if (jumpHeight <= 0) {
+            jumpHeight = 0;
+            sphere.powerDirection = 1;
+        }
+
+        // Update launch bar visual
+        const launchBar = document.getElementById('launchBar');
+        launchBar.style.width = (jumpHeight * 10) + '%';
+        launchBar.style.backgroundColor = getHeightColor(jumpHeight * 100);
+    } else {
+        sphere.powerDirection = 1;
     }
 
     if (!grounded) {
         jumpVelocity += gravity;
         if (jumpVelocity < -3) { jumpVelocity = -3; }
         sphere.position.y += jumpVelocity;
+        
+        // Apply horizontal momentum with decay
+        momentum.multiplyScalar(0.99); // Add slight air resistance
     }
 
     // Collision checks
@@ -760,6 +781,32 @@ function move() {
         yaw = 0;
         pitch = 0;
     }
+}
+
+function launchSphere() {
+    if (!grounded) return; // Only launch if grounded
+
+    // Get camera direction for forward launch
+    const cameraDirection = new THREE.Vector3(0, 0, -1);
+    cameraDirection.applyEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
+
+    // Set momentum based on launch direction and power
+    momentum.copy(cameraDirection).multiplyScalar(jumpHeight);
+    momentum.y = jumpHeight * 0.6; // Reduce component
+    momentum.x = momentum.x * 0.3; // Reduce component
+    momentum.z = momentum.z * 0.3; // Reduce component
+
+    // Set initial jump velocity
+    jumpVelocity = jumpHeight * 0.5; // Reduce initial vertical velocity
+
+    // Play jump sound
+    playSound("assets/sounds/se_common_jump.wav");
+
+    // Reset launch power
+    jumpHeight = 0;
+    document.getElementById('launchBar').style.width = '0%';
+
+    grounded = false;
 }
 
 const dialog = document.getElementById('usernameDialog');

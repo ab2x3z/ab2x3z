@@ -116,6 +116,27 @@ canvas {
     border-radius: 15px;
 }
 
+#launchBarContainer {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1000;  /* Add this to ensure visibility */
+    display: block; /* Add this to ensure visibility */
+}
+
+#launchBar {
+    width: 0;
+    height: 100%;
+    background-color: #4caf50;
+    transition: width 0.05s linear; /* Make the transition faster */
+}
+
 .menu-button {
     position: absolute;
     bottom: 2rem;
