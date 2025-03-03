@@ -251,8 +251,7 @@ function createPlatforms(manager, levels) {
     levels.forEach((level, levelIndex) => {
         const numberOfPlatforms = levelIndex === levels.length - 1 ? 100 : 10; // Different count for last level
         for (let i = 0; i < numberOfPlatforms; i++) {
-            let size = level.size + (Math.random() * level.size / 2 - 10);
-            const geometryPlatform = new THREE.BoxGeometry(size, 3, size);
+            const geometryPlatform = new THREE.BoxGeometry(level.size + (Math.random() * level.size / 2 - 10), 3, level.size + (Math.random() * level.size / 2 - 10));
             const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
             const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
             const displacement = loadTexture(manager, `assets/platforms/${level.displacement}`);
