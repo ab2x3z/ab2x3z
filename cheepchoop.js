@@ -825,8 +825,11 @@ cancelButton.addEventListener('click', () => {
 
 dialog.querySelector('form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = document.getElementById('username').value.trim();
+    let username = document.getElementById('username').value.trim();
     if (!username) return;
+
+    // Sanitize username to prevent XSS
+    username = username.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {

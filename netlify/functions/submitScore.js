@@ -8,14 +8,17 @@ export const handler = async (event, context) => {
 
   try {
     console.log('Parsing event body');
-    const { playerName, score, level } = JSON.parse(event.body);
-    
+    let { playerName, score, level } = JSON.parse(event.body);
+
     if (!playerName || typeof playerName !== 'string') {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Missing required fields' })
       };
     }
+
+    // Sanitize playerName to prevent XSS
+    playerName = playerName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
     const payload = {
       player_name: playerName,
