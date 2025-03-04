@@ -622,8 +622,8 @@ function move() {
         if (jumpVelocity < -3) { jumpVelocity = -3; }
         sphere.position.y += jumpVelocity;
         
-        // Apply horizontal momentum with decay
-        momentum.multiplyScalar(0.99); // Add slight air resistance
+        // Apply decay to vertical momentum but keep horizontal momentum
+        momentum.y *= 0.99;
     }
 
     // Collision checks
