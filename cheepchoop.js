@@ -781,8 +781,19 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
     let username = document.getElementById('username').value.trim();
     if (!username) return;
 
-    // Sanitize username to prevent XSS
-    username = username.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // Input validation and sanitization
+    if (username.length > 50) { alert('Username too long'); return; }
+
+    // Only allow alphanumeric characters and common symbols
+    if (!/^[a-zA-Z0-9-_. ]+$/.test(username)) { alert('Username contains invalid characters'); return; }
+
+    // Additional XSS protection
+    username = username
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 
     try {
         const response = await fetch('/.netlify/functions/submitScore', {
@@ -792,9 +803,10 @@ dialog.querySelector('form').addEventListener('submit', async (e) => {
             },
             body: JSON.stringify({
                 playerName: username,
-                score: maxHeight,
+                score: Math.max(0, Math.min(maxHeight, 9999)),
                 level: maxLevel.name
-            })
+            }),
+            credentials: 'same-origin'
         });
 
         if (!response.ok) throw new Error('Failed to submit score');
