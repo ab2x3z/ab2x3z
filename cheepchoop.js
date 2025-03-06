@@ -596,6 +596,15 @@ function getHeightColor(height) {
     return `rgb(${Math.floor(255 * (1 - ((value - 0.66) * 3)))}, 0, 0)`; // Red to black
 }
 
+function setLevelText(levelName) {
+    document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : levelName;
+}
+
+function setMaxLevel(level) {
+    maxLevel = level;
+    document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+}
+
 function move() {
     let moveDirection = new THREE.Vector3();
     let moveSpeed = keyIsPressed('Shift') ? runSpeed : walkSpeed;
@@ -668,55 +677,49 @@ function move() {
                 switch (platform.levelType) {
                     case LevelType.WOOD:
                         playSound("assets/sounds/se_common_landing_wood.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.WOOD.name;
+                        setLevelText(LevelType.WOOD.name);
                         if (maxLevel.value < LevelType.WOOD.value) {
-                            maxLevel = LevelType.WOOD;
-                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                            setMaxLevel(LevelType.WOOD);
                         }
                         break;
 
                     case LevelType.BRICK:
                         playSound("assets/sounds/se_common_landing_brick.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.BRICK.name;
+                        setLevelText(LevelType.BRICK.name);
                         if (maxLevel.value < LevelType.BRICK.value) {
-                            maxLevel = LevelType.BRICK;
-                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                            setMaxLevel(LevelType.BRICK);
                         }
                         break;
 
                     case LevelType.SAND:
                         playSound("assets/sounds/se_common_landing_sand.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.SAND.name;
+                        setLevelText(LevelType.SAND.name);
                         if (maxLevel.value < LevelType.SAND.value) {
-                            maxLevel = LevelType.SAND;
-                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                            setMaxLevel(LevelType.SAND);
                         }
                         break;
 
                     case LevelType.MARBLE:
                         playSound("assets/sounds/se_common_landing_marble.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.MARBLE.name;
+                        setLevelText(LevelType.MARBLE.name);
                         if (maxLevel.value < LevelType.MARBLE.value) {
-                            maxLevel = LevelType.MARBLE;
-                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                            setMaxLevel(LevelType.MARBLE);
                         }
                         break;
 
                     case LevelType.OBSIDIAN:
                         playSound("assets/sounds/se_common_landing_obsidian.wav");
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.OBSIDIAN.name;
+                        setLevelText(LevelType.OBSIDIAN.name);
                         if (maxLevel.value < LevelType.OBSIDIAN.value) {
-                            maxLevel = LevelType.OBSIDIAN;
-                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                            setMaxLevel(LevelType.OBSIDIAN);
                         }
                         break;
 
                     case LevelType.SCIFI:
                         playSound("assets/sounds/se_common_landing_obsidian.wav"); // Reuse obsidian sound or add new
-                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.SCIFI.name;
+                        setLevelText(LevelType.SCIFI.name);
                         if (maxLevel.value < LevelType.SCIFI.value) {
-                            maxLevel = LevelType.SCIFI;
-                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                            setMaxLevel(LevelType.SCIFI);
                         }
                         break;
 
@@ -741,7 +744,7 @@ function move() {
         jumpVelocity = 0;
 
         // Display the current level
-        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.GROUND.name;
+        setLevelText(LevelType.GROUND.name);
 
         if (!grounded) {
             playSound("assets/sounds/se_common_landing_grass.wav");
