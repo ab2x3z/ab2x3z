@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // ******************************  Enums and Constants  ******************************
 const LevelType = {
@@ -9,7 +10,8 @@ const LevelType = {
     BRICK: { value: 2, name: 'Brick' },
     SAND: { value: 3, name: 'Sand' },
     MARBLE: { value: 4, name: 'Marble' },
-    OBSIDIAN: { value: 5, name: 'Obsidian' }
+    OBSIDIAN: { value: 5, name: 'Obsidian' },
+    SCIFI: { value: 6, name: 'Sci-Fi' }
 };
 
 const RepeatFactor = 100;
@@ -62,6 +64,11 @@ const platformLevels = [
         displacement: 'Obsidian006_1K-JPG_Displacement.jpg',
         roughness: 'Obsidian006_1K-JPG_Roughness.jpg',
         size: 20
+    },
+    {
+        type: LevelType.SCIFI,
+        model: 'assets/glTFs/roundPlatform/scene.gltf',
+        size: 100
     }
 ];
 
@@ -265,12 +272,16 @@ fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font)
     scene.add(moveTextMesh, jumpTextMesh, lookTextMesh);
 });
 // ******************************  Create Platforms  ******************************
+
+const loader = new GLTFLoader(manager);
+
 function createPlatforms(manager, levels) {
     const platforms = [];
     let lastPlatformPosition = new THREE.Vector3(0, 0, 0);
+    const loader = new GLTFLoader(manager);
 
     // Pre-create geometries and materials for each level
-    const levelMaterials = levels.map(level => {
+    const levelMaterials = levels.slice(0, -1).map(level => {
         const texture = loadTexture(manager, `assets/platforms/${level.texture}`);
         const normal = loadTexture(manager, `assets/platforms/${level.normal}`);
         const displacement = loadTexture(manager, `assets/platforms/${level.displacement}`);
@@ -297,16 +308,28 @@ function createPlatforms(manager, levels) {
     });
 
     levels.forEach((level, levelIndex) => {
-        const numberOfPlatforms = levelIndex === levels.length - 1 ? 100 : 10;
+        const numberOfPlatforms = levelIndex === levels.length - 1 ? 10 : 10; // Change for more at the end???
 
         for (let i = 0; i < numberOfPlatforms; i++) {
-            const geometryPlatform = new THREE.BoxGeometry(
-                level.size + (Math.random() * level.size / 2 - 10),
-                3,
-                level.size + (Math.random() * level.size / 2 - 10)
-            );
+            let platform;
 
-            const platform = new THREE.Mesh(geometryPlatform, levelMaterials[levelIndex]);
+            // Load an assets for levels after Obsidian
+            if (level.type === LevelType.SCIFI) {
+                platform = new THREE.Mesh();
+                loader.load(level.model, (gltf) => {
+                    const model = gltf.scene;
+                    model.scale.set(10, 10, 10);
+                    platform.add(model);
+                });
+            } else {
+                const geometryPlatform = new THREE.BoxGeometry(
+                    level.size + (Math.random() * level.size / 2 - 10),
+                    3,
+                    level.size + (Math.random() * level.size / 2 - 10)
+                );
+                platform = new THREE.Mesh(geometryPlatform, levelMaterials[levelIndex]);
+            }
+
             platform.levelType = level.type;
 
             // Calculate position
@@ -456,6 +479,26 @@ const upVector = new THREE.Vector3(0, 1, 0);
 function checkSphereBoxCollision(sphere, box) {
     const spherePosition = sphere.position.clone();
     const boxPosition = box.position.clone();
+    
+    if (box.levelType === LevelType.SCIFI) {
+        // For model platforms, use a cylindrical collision shape
+        const radiusSquared = 550; // Radius of 5 units for collision
+        const height = 1.5; // Height of collision cylinder
+        
+        // Check horizontal distance (using x and z)
+        const dx = spherePosition.x - boxPosition.x;
+        const dz = spherePosition.z - boxPosition.z;
+        const distanceSquared = dx * dx + dz * dz;
+        
+        // Check if within radius and height
+        if (distanceSquared <= radiusSquared) {
+            const dy = Math.abs(spherePosition.y - boxPosition.y);
+            return dy <= height + sphereRadius;
+        }
+        return false;
+    }
+
+    // Original box collision for other platform types
     const boxSize = new THREE.Vector3(box.geometry.parameters.width / 2, 1.5, box.geometry.parameters.depth / 2); // Half the box size
 
     // Get box min and max coordinates
@@ -664,6 +707,15 @@ function move() {
                         document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.OBSIDIAN.name;
                         if (maxLevel.value < LevelType.OBSIDIAN.value) {
                             maxLevel = LevelType.OBSIDIAN;
+                            document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
+                        }
+                        break;
+
+                    case LevelType.SCIFI:
+                        playSound("assets/sounds/se_common_landing_obsidian.wav"); // Reuse obsidian sound or add new
+                        document.getElementById('currentLevel').textContent = godMode ? 'GodMode' : LevelType.SCIFI.name;
+                        if (maxLevel.value < LevelType.SCIFI.value) {
+                            maxLevel = LevelType.SCIFI;
                             document.getElementById('maxHeight').style.setProperty('--maxLevel', `"${maxLevel.name}"`);
                         }
                         break;
