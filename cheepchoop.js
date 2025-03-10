@@ -729,7 +729,7 @@ function move() {
                         break;
 
                     case LevelType.SCIFI:
-                        playSound("assets/sounds/se_common_landing_obsidian.wav"); // Reuse obsidian sound or add new
+                        playSound("assets/sounds/se_common_landing_sci-fi.wav");
                         setLevelText(LevelType.SCIFI.name);
                         if (maxLevel.value < LevelType.SCIFI.value) {
                             setMaxLevel(LevelType.SCIFI);
