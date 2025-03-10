@@ -19,7 +19,7 @@ const RepeatFactor = 100;
 const gravity = -0.4;
 const walkSpeed = 1;
 const runSpeed = 2;
-const sensitivity = 0.002;
+const sensitivity = 0.005;
 const sphereRadius = 5;
 const jumpHeight = 8;
 const platformLevels = [
@@ -548,7 +548,6 @@ let isPointerLocked = false;
 let yaw = 0;
 let pitch = 0;
 
-
 // Function to lock pointer and hide cursor
 function lockPointer() {
     const canvas = renderer.domElement;
@@ -574,19 +573,18 @@ function pointerLockChange() {
 
 // Mouse movement handler
 function onMouseMove(event) {
-    if (isDialogOpen) return; // Ignore input if dialog is open
-    if (isPointerLocked) {
-        const movementX = event.movementX || event.mozMovementX || 0;
-        const movementY = event.movementY || event.mozMovementY || 0;
+    if (isDialogOpen || !isPointerLocked) return;
 
-        yaw -= movementX * sensitivity;
-        pitch -= movementY * sensitivity;
+    // Clamp mouse movement to prevent large jumps
+    const movementX = Math.max(-30, Math.min(30, event.movementX || 0));
+    const movementY = Math.max(-30, Math.min(30, event.movementY || 0));
 
-        // Limit pitch to prevent looking too far up or down
-        pitch = Math.max((-Math.PI / 2) + 0.5, Math.min(Math.PI / 2, pitch));
-    }
+    yaw -= movementX * sensitivity;
+    pitch -= movementY * sensitivity;
+
+    // Limit pitch to prevent looking too far up or down
+    pitch = Math.max((-Math.PI / 2) + 0.5, Math.min(Math.PI / 2, pitch));
 }
-
 
 document.addEventListener('mousemove', onMouseMove, false);
 
