@@ -64,17 +64,15 @@ const platformLevels = [
         normal: 'Obsidian006_1K-JPG_NormalGL.jpg',
         displacement: 'Obsidian006_1K-JPG_Displacement.jpg',
         roughness: 'Obsidian006_1K-JPG_Roughness.jpg',
-        size: 20
+        size: 25
     },
     {
         type: LevelType.SCIFI,
-        model: 'assets/glTFs/roundPlatform/scene.gltf',
-        size: 100
+        model: 'assets/glTFs/roundPlatform/scene.gltf'
     },
     {
         type: LevelType.SLEEP,
-        model: 'assets/glTFs/bed/scene.gltf',
-        size: 100
+        model: 'assets/glTFs/bed/scene.gltf'
     }
 ];
 
@@ -454,15 +452,15 @@ document.addEventListener('keydown', (event) => {
     userHasInteracted = true;
     playBackgroundMusic();
 
-    // if (event.key === 'g') {
-    //     godMode = !godMode;
-    //     if (godMode) {
-    //         previousLevel = document.getElementById('currentLevel').textContent;
-    //         document.getElementById('currentLevel').textContent = 'GodMode';
-    //     } else {
-    //         document.getElementById('currentLevel').textContent = previousLevel;
-    //     }
-    // }
+    if (event.key === 'g') {
+        godMode = !godMode;
+        if (godMode) {
+            previousLevel = document.getElementById('currentLevel').textContent;
+            document.getElementById('currentLevel').textContent = 'GodMode';
+        } else {
+            document.getElementById('currentLevel').textContent = previousLevel;
+        }
+    }
 });
 document.addEventListener('keyup', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
