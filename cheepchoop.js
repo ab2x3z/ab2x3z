@@ -11,7 +11,8 @@ const LevelType = {
     SAND: { value: 3, name: 'Sand' },
     MARBLE: { value: 4, name: 'Marble' },
     OBSIDIAN: { value: 5, name: 'Obsidian' },
-    SCIFI: { value: 6, name: 'Sci-Fi' }
+    SCIFI: { value: 6, name: 'Sci-Fi' },
+    SLEEP: { value: 7, name: 'Sleep' }
 };
 
 const RepeatFactor = 100;
@@ -68,6 +69,11 @@ const platformLevels = [
     {
         type: LevelType.SCIFI,
         model: 'assets/glTFs/roundPlatform/scene.gltf',
+        size: 100
+    },
+    {
+        type: LevelType.SLEEP,
+        model: 'assets/glTFs/bed/scene.gltf',
         size: 100
     }
 ];
@@ -272,7 +278,6 @@ fontLoader.load('assets/fonts/helvetiker_regular.typeface.json', function (font)
     scene.add(moveTextMesh, jumpTextMesh, lookTextMesh);
 });
 // ******************************  Create Platforms  ******************************
-
 const loader = new GLTFLoader(manager);
 
 function createPlatforms(manager, levels) {
@@ -308,7 +313,7 @@ function createPlatforms(manager, levels) {
     });
 
     levels.forEach((level, levelIndex) => {
-        const numberOfPlatforms = levelIndex === levels.length - 1 ? 10 : 10; // Change for more at the end???
+        const numberOfPlatforms = levelIndex === levels.length - 1 ? 10 : 10; // Only one at the end
 
         for (let i = 0; i < numberOfPlatforms; i++) {
             let platform;
@@ -319,6 +324,14 @@ function createPlatforms(manager, levels) {
                 loader.load(level.model, (gltf) => {
                     const model = gltf.scene;
                     model.scale.set(10, 10, 10);
+                    platform.add(model);
+                });
+            } else if (level.type === LevelType.SLEEP) {
+                platform = new THREE.Mesh(new THREE.BoxGeometry(30, 1, 60), new THREE.MeshBasicMaterial({ visible: false }));
+                loader.load(level.model, (gltf) => {
+                    const model = gltf.scene;
+                    model.scale.set(0.03, 0.03, 0.03);
+                    model.position.y -= 4;
                     platform.add(model);
                 });
             } else {
@@ -433,7 +446,7 @@ scene.background = skybox;
 let userHasInteracted = false;
 const keysPressed = {};
 let isDialogOpen = false;
-//let previousLevel;
+let previousLevel;
 
 document.addEventListener('keydown', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
@@ -441,15 +454,15 @@ document.addEventListener('keydown', (event) => {
     userHasInteracted = true;
     playBackgroundMusic();
 
-    // if (event.key === 'g') {
-    //     godMode = !godMode;
-    //     if (godMode) {
-    //         previousLevel = document.getElementById('currentLevel').textContent;
-    //         document.getElementById('currentLevel').textContent = 'GodMode';
-    //     } else {
-    //         document.getElementById('currentLevel').textContent = previousLevel;
-    //     }
-    // }
+    if (event.key === 'g') {
+        godMode = !godMode;
+        if (godMode) {
+            previousLevel = document.getElementById('currentLevel').textContent;
+            document.getElementById('currentLevel').textContent = 'GodMode';
+        } else {
+            document.getElementById('currentLevel').textContent = previousLevel;
+        }
+    }
 });
 document.addEventListener('keyup', (event) => {
     if (isDialogOpen) return; // Ignore input if dialog is open
@@ -479,17 +492,17 @@ const upVector = new THREE.Vector3(0, 1, 0);
 function checkSphereBoxCollision(sphere, box) {
     const spherePosition = sphere.position.clone();
     const boxPosition = box.position.clone();
-    
+
     if (box.levelType === LevelType.SCIFI) {
         // For model platforms, use a cylindrical collision shape
         const radiusSquared = 550; // Radius of 5 units for collision
         const height = 1.5; // Height of collision cylinder
-        
+
         // Check horizontal distance (using x and z)
         const dx = spherePosition.x - boxPosition.x;
         const dz = spherePosition.z - boxPosition.z;
         const distanceSquared = dx * dx + dz * dz;
-        
+
         // Check if within radius and height
         if (distanceSquared <= radiusSquared) {
             const dy = Math.abs(spherePosition.y - boxPosition.y);
@@ -720,6 +733,14 @@ function move() {
                         setLevelText(LevelType.SCIFI.name);
                         if (maxLevel.value < LevelType.SCIFI.value) {
                             setMaxLevel(LevelType.SCIFI);
+                        }
+                        break;
+
+                    case LevelType.SLEEP:
+                        playSound("assets/sounds/se_common_landing_bed.wav");
+                        setLevelText(LevelType.SLEEP.name);
+                        if (maxLevel.value < LevelType.SLEEP.value) {
+                            setMaxLevel(LevelType.SLEEP);
                         }
                         break;
 

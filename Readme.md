@@ -12,3 +12,4 @@
 
 * ## Assets:
     *   "round platform" (https://skfb.ly/ovIAF) by n0stardust is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+    *   "Bed" (https://skfb.ly/6QZQQ) by Znyth Technologies is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
