@@ -64,9 +64,9 @@
             try {
                 const response = await fetch('/.netlify/functions/getHighScores');
                 if (!response.ok) throw new Error('Failed to get high scores');
-
+                console.log('Response:', response);
                 let scores = await response.json();
-
+                
                 scores.sort((a, b) => b.score - a.score);
 
                 const leaderboardContent = document.getElementById('leaderboardContent');

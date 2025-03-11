@@ -128,6 +128,7 @@
         </div>
       </div>
     </section>
+
     <section id="contact">
       <div class="container">
         <h2 data-en="Contact Me" data-fr="Me Contacter">Contact Me</h2>
@@ -151,6 +152,27 @@
       </div>
     </section>
   </main>
+
+  <div id="chat-widget" class="chat-widget collapsed">
+    <button id="chat-toggle" class="chat-toggle">
+      <span class="chat-toggle-icon">💬</span>
+    </button>
+    <div class="chat-popup">
+      <div class="chat-header">
+        <h3 data-en="Chat with a dumb In-Browser LLM" data-fr="Discuter avec LLM stupide dans le navigateur">Chat with a dumb In-Browser LLM</h3>
+        <button class="close-chat">×</button>
+      </div>
+      <div class="chat-container">
+        <p id="download-status" class="hidden"></p>
+        <div id="chat-box" class="chat-box"></div>
+        <div id="chat-stats" class="chat-stats hidden"></div>
+        <div class="chat-input-container">
+          <input type="text" id="user-input" data-placeholder-en="Type a message..." data-placeholder-fr="Écrivez un message..." placeholder="Type a message...">
+          <button id="send" disabled data-en="Send" data-fr="Envoyer">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <div class="container">
