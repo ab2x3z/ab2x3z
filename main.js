@@ -5,22 +5,37 @@ const messages = [{
   content: "You are Anthony's web assistant, designed to entertain visitors to his developer portfolio website (Anthony Tremblay is the site creator). Be cheerfully unconcerned about your limited intelligence. You operate entirely client-side in the browser, so performance limitations are acceptable. Focus on trying your best, but you do not need to give accurate technical information. Do not use any action indicators like *laugh,* *chuckle,* (smiles), [grins], or any similar textual descriptions of actions or expressions. Instead, convey emotion and personality through your words alone. Avoid any form of role-playing beyond being Anthony's web assistant.",
   role: "system",
 }];
-const selectedModel = "Llama-3.2-1B-Instruct-q4f32_1-MLC";
+const model = "Llama-3.2-1B-Instruct-q4f32_1-MLC"; // Too cringe
+// const model = "Phi-3.5-mini-instruct-q4f16_1-MLC"; Too big
+// const model = "gemma-2-2b-it-q4f32_1-MLC"; Too big
+// const model = "SmolLM2-135M-Instruct-q0f32-MLC"; Too dumb
+// const model = "SmolLM2-360M-Instruct-q4f32_1-MLC"; Not too bad but not great
+// const model = "TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC";
+
 
 const engine = new webllm.MLCEngine();
+let initMessageContainer;
+
 engine.setInitProgressCallback((report) => {
   console.log("initialize", report.progress);
-  document.getElementById("download-status").textContent = "Please wait... " + report.text;
+  if (!initMessageContainer) {
+    const initMessage = { content: "Please wait... " + report.text, role: "assistant" };
+    appendMessage(initMessage);
+    const messageDoms = document.getElementById("chat-box").querySelectorAll(".message-container");
+    initMessageContainer = messageDoms[messageDoms.length - 1];
+  } else {
+    let text = "Please wait...  " + report.text.replace('when we first visit this page to populate the cache', 'if loading for the first time');
+    initMessageContainer.querySelector(".message").textContent = text;
+  }
 });
 
 async function initializeWebLLMEngine() {
-  document.getElementById("download-status").classList.remove("hidden");
-  const config = { temperature: 0.9, top_p: 1 };
-  await engine.reload(selectedModel, config);
+  const config = { temperature: 0.1, top_p: 0.9 };
+  await engine.reload(model, config);
 }
 initializeWebLLMEngine().then(() => {
   document.getElementById("send").disabled = false;
-  document.getElementById("download-status").textContent = "Ready to chat!";
+  initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
 });
 
 async function streamingGenerating(messages, onUpdate, onFinish, onError) {
@@ -28,15 +43,16 @@ async function streamingGenerating(messages, onUpdate, onFinish, onError) {
     let curMessage = "";
     const completion = await engine.chat.completions.create({
       stream: true,
-      messages,
+      messages
     });
     for await (const chunk of completion) {
       const curDelta = chunk.choices[0].delta.content;
       if (curDelta) curMessage += curDelta;
-      onUpdate(curMessage);
+      onUpdate(curMessage.replace(/\*[^*]*\*/g, '').trim()); // Remove *actions*
+      document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
     }
     const finalMessage = await engine.getMessage();
-    onFinish(finalMessage);
+    onFinish(finalMessage.replace(/\*[^*]*\*/g, '').trim()); // Remove *actions*
   } catch (err) {
     onError(err);
   }
@@ -87,7 +103,7 @@ function onMessageSend() {
 }
 document.getElementById("send").addEventListener("click", onMessageSend);
 document.getElementById("user-input").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") onMessageSend();
+  if (e.key === "Enter" && !document.getElementById("send").disabled) onMessageSend();
 });
 
 // Toggle functionality
