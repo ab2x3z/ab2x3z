@@ -79,6 +79,7 @@ function updateLastMessage(content) {
 
 function onMessageSend() {
   const input = document.getElementById("user-input");
+  const originalPlaceholder = currentLang === 'en' ? "Type a message..." : "Tapez un message...";
   const message = { content: input.value.trim(), role: "user" };
   if (message.content.length === 0) return;
   
@@ -97,10 +98,16 @@ function onMessageSend() {
     (finalMessage) => {
       updateLastMessage(finalMessage);
       document.getElementById("send").disabled = false;
+      input.setAttribute("placeholder", originalPlaceholder);
     },
-    console.error
+    (error) => {
+      console.error(error);
+      document.getElementById("send").disabled = false;
+      input.setAttribute("placeholder", originalPlaceholder);
+    }
   );
 }
+
 document.getElementById("send").addEventListener("click", onMessageSend);
 document.getElementById("user-input").addEventListener("keypress", (e) => {
   if (e.key === "Enter" && !document.getElementById("send").disabled) onMessageSend();
