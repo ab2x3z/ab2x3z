@@ -52,7 +52,15 @@ async function streamingGenerating(messages, onUpdate, onFinish, onError) {
       document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
     }
     const finalMessage = await engine.getMessage();
-    onFinish(finalMessage.replace(/\*[^*]*\*/g, '').trim()); // Remove *actions*
+    let processedMessage = finalMessage;
+
+    // Check if the message is fully enclosed in asterisks.
+    if (!(finalMessage.startsWith("*") && finalMessage.endsWith("*") && finalMessage.indexOf("*", 1) === finalMessage.length - 1)) {
+      // Otherwise, remove *actions*
+      processedMessage = finalMessage.replace(/\*[^*]*\*/g, '').trim();
+    }
+
+    onFinish(processedMessage);
   } catch (err) {
     onError(err);
   }
@@ -82,7 +90,7 @@ function onMessageSend() {
   const originalPlaceholder = currentLang === 'en' ? "Type a message..." : "Tapez un message...";
   const message = { content: input.value.trim(), role: "user" };
   if (message.content.length === 0) return;
-  
+
   document.getElementById("send").disabled = true;
   messages.push(message);
   appendMessage(message);
@@ -135,7 +143,7 @@ function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
   const langButton = document.getElementById('langToggle');
   langButton.textContent = currentLang === 'en' ? 'FR' : 'EN';
-  
+
   // Update all elements with data-en and data-fr attributes
   document.querySelectorAll('[data-en]').forEach(element => {
     element.textContent = element.getAttribute(`data-${currentLang}`);
@@ -157,7 +165,7 @@ document.getElementById('langToggle').addEventListener('click', toggleLanguage);
 
 // Smooth scroll for navigation links
 document.querySelectorAll('nav a').forEach(anchor => {
-  anchor.addEventListener('click', function(e) {
+  anchor.addEventListener('click', function (e) {
     e.preventDefault();
     const targetId = this.getAttribute('href');
     const targetSection = document.querySelector(targetId);
