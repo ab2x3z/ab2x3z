@@ -1,9 +1,9 @@
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
 const summaryEN = "I am an aspiring Information Technology Engineer with a planned graduation date of August 2025 from École de technologie supérieure (ÉTS), building upon my College Diploma from Montmorency College. Beyond a strong foundation in computer skills, my technical skills extend to electrical and electronic systems, project management, error management, and quality control. I have gained valuable experience through several internships. Most recently, as a Full Stack Developer at Justice Canada, I developed full-stack applications using C#, .NET, Entity Framework, and Blazor, and performed QA testing. I also have experience as a Full Stack Developer at Sherweb, where I contributed to the design, development, and deployment of innovative features. Earlier, as a Junior Programmer Analyst at Réseautage Inc., I was involved in website analysis, design, development, quality assurance, and debugging.";
-const inputTextEN = `Reformulate the following text "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
+const inputTextEN = `Reformulate the following text and talk to the first person. "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
 const summaryFR = "Je suis un aspirant ingénieur en technologies de l'information, prévoyant d'obtenir mon diplôme en août 2025 de l'École de technologie supérieure (ÉTS), pour faire suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
-const inputTextFR = `Reformulez le texte suivant : "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
+const inputTextFR = `Reformulez le texte suivant et parle a la premiere personne. "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
 const geminiModel = "gemini-2.0-flash";
 
 // WebLLM setup
@@ -147,17 +147,20 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
   document.getElementById('chat-widget').classList.remove('expanded');
 });
 
-// ************************* GEMINI
-async function reformulateSummary() {
-  let inputText;
-  if (currentLang === 'en') {
-    inputText = inputTextEN;
-  } else {
-    inputText = inputTextFR;
-  }
+// ************************* GEMINI *************************
+function updateSummaryText(content) {
+  const summaryElement = document.getElementById('summaryP');
+  summaryElement.classList.remove('show');
+  setTimeout(() => {
+    summaryElement.textContent = content;
+    summaryElement.classList.add('show');
+  }, 500); // Delay to allow the fade-out effect
+}
 
+async function reformulateSummary() {
+  let inputText = currentLang === 'en' ? inputTextEN : inputTextFR;
   try {
-    const response = await fetch('/.netlify/functions/getSummary', {
+    const response = await fetch('/.netlify/functions/getGeminiResponse', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -172,13 +175,16 @@ async function reformulateSummary() {
     if (!response.ok) throw new Error('');
 
     const result = await response.json();
-    document.getElementById('summaryP').textContent = result.candidates[0].content.parts[0].text;
+    updateSummaryText(result.candidates[0].content.parts[0].text);
 
   } catch (error) {
+    // display the regular summary if an error occurs
+    updateSummaryText(currentLang === 'en' ? summaryEN : summaryFR);
   }
 }
+
 document.addEventListener('DOMContentLoaded', (event) => {
-    reformulateSummary();
+  reformulateSummary();
 });
 
 // Language switching functionality

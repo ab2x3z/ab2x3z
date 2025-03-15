@@ -8,6 +8,9 @@ export const handler = async (event, context) => {
 
     const { geminiModel, input } = JSON.parse(event.body);
 
+    const origin = event.headers.origin;
+    console.log("Origin:", origin); // Log the Origin header
+    
     try {
         const result = await generateContent(geminiModel, input);
         return {
