@@ -31,12 +31,9 @@ engine.setInitProgressCallback((report) => {
 
 async function initializeWebLLMEngine() {
   const config = { temperature: 0.1, top_p: 0.9 };
+  engine.isInitialized = true;
   await engine.reload(model, config);
 }
-initializeWebLLMEngine().then(() => {
-  document.getElementById("send").disabled = false;
-  initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
-});
 
 async function streamingGenerating(messages, onUpdate, onFinish, onError) {
   try {
@@ -128,6 +125,12 @@ document.getElementById('chat-toggle').addEventListener('click', () => {
     chatWidget.classList.remove('expanded');
   } else {
     chatWidget.classList.add('expanded');
+    if (!engine.isInitialized) {
+    initializeWebLLMEngine().then(() => {
+      document.getElementById("send").disabled = false;
+      initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
+    });
+  }
   }
 });
 
