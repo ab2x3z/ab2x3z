@@ -1,5 +1,7 @@
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
+const geminiModel = "gemini-2.0-flash";
+
 // WebLLM setup
 const messages = [{
   content: "You are Anthony's web assistant, designed to entertain visitors to his developer portfolio website (Anthony Tremblay is the site creator). Be cheerfully unconcerned about your limited intelligence. You operate entirely client-side in the browser, so performance limitations are acceptable. Focus on trying your best, but you do not need to give accurate technical information. Do not use any action indicators like *laugh,* *chuckle,* (smiles), [grins], or any similar textual descriptions of actions or expressions. Instead, convey emotion and personality through your words alone. Avoid any form of role-playing beyond being Anthony's web assistant.",
@@ -120,17 +122,19 @@ document.getElementById("user-input").addEventListener("keypress", (e) => {
 
 // Toggle functionality
 document.getElementById('chat-toggle').addEventListener('click', () => {
+  test();
+
   const chatWidget = document.getElementById('chat-widget');
   if (chatWidget.classList.contains('expanded')) {
     chatWidget.classList.remove('expanded');
   } else {
     chatWidget.classList.add('expanded');
     if (!engine.isInitialized) {
-    initializeWebLLMEngine().then(() => {
-      document.getElementById("send").disabled = false;
-      initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
-    });
-  }
+      initializeWebLLMEngine().then(() => {
+        document.getElementById("send").disabled = false;
+        initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
+      });
+    }
   }
 });
 
@@ -138,6 +142,33 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
   e.stopPropagation();
   document.getElementById('chat-widget').classList.remove('expanded');
 });
+
+// ************************* GEMINI
+async function test() {
+  // const inputText = "Hi how are you doing?";
+
+  try {
+    const response = await fetch('/.netlify/functions/getSummary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        geminiModel: geminiModel,
+        input: inputText
+      }),
+      credentials: 'same-origin'
+    });
+
+    if (!response.ok) throw new Error('');
+
+    const result = await response.json();
+    console.log('Response: ', result);
+
+  } catch (error) {
+  }
+}
+
 
 // Language switching functionality
 let currentLang = 'en';
@@ -153,7 +184,7 @@ function toggleLanguage() {
   });
 
   // Update form placeholders
-  document.querySelectorAll('input, textarea').forEach(element => {
+  documentc.querySelectorAll('input, textarea').forEach(element => {
     const placeholderAttr = `data-placeholder-${currentLang}`;
     if (element.hasAttribute(placeholderAttr)) {
       element.placeholder = element.getAttribute(placeholderAttr);
