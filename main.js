@@ -159,6 +159,7 @@ function updateSummaryText(content) {
 
 async function reformulateSummary() {
   let inputText = currentLang === 'en' ? inputTextEN : inputTextFR;
+  const origin = window.location.origin; // Get the origin of the current page
   try {
     const response = await fetch('/.netlify/functions/getGeminiResponse', {
       method: 'POST',
@@ -167,7 +168,8 @@ async function reformulateSummary() {
       },
       body: JSON.stringify({
         geminiModel: geminiModel,
-        input: inputText
+        input: inputText,
+        origin: origin
       }),
       credentials: 'same-origin'
     });
