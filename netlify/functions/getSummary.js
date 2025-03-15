@@ -26,8 +26,7 @@ export const handler = async (event, context) => {
 };
 
 async function generateContent(geminiModel, inputText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/${geminiModel}:generateContent?key=${process.env.GEMINI}`;
-
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${process.env.GEMINI}`;
     try {
         const response = await fetch(url, {
             method: 'POST',

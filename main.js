@@ -1,5 +1,9 @@
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
+const summaryEN = "I am an aspiring Information Technology Engineer with a planned graduation date of August 2025 from École de technologie supérieure (ÉTS), building upon my College Diploma from Montmorency College. Beyond a strong foundation in computer skills, my technical skills extend to electrical and electronic systems, project management, error management, and quality control. I have gained valuable experience through several internships. Most recently, as a Full Stack Developer at Justice Canada, I developed full-stack applications using C#, .NET, Entity Framework, and Blazor, and performed QA testing. I also have experience as a Full Stack Developer at Sherweb, where I contributed to the design, development, and deployment of innovative features. Earlier, as a Junior Programmer Analyst at Réseautage Inc., I was involved in website analysis, design, development, quality assurance, and debugging.";
+const inputTextEN = `Reformulate the following text "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
+const summaryFR = "Je suis un aspirant ingénieur en technologies de l'information, prévoyant d'obtenir mon diplôme en août 2025 de l'École de technologie supérieure (ÉTS), pour faire suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
+const inputTextFR = `Reformulez le texte suivant : "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
 const geminiModel = "gemini-2.0-flash";
 
 // WebLLM setup
@@ -144,8 +148,13 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
 });
 
 // ************************* GEMINI
-async function test() {
-  // const inputText = "Hi how are you doing?";
+async function reformulateSummary() {
+  let inputText;
+  if (currentLang === 'en') {
+    inputText = inputTextEN;
+  } else {
+    inputText = inputTextFR;
+  }
 
   try {
     const response = await fetch('/.netlify/functions/getSummary', {
@@ -163,18 +172,21 @@ async function test() {
     if (!response.ok) throw new Error('');
 
     const result = await response.json();
-    console.log('Response: ', result);
+    document.getElementById('summaryP').textContent = result.candidates[0].content.parts[0].text;
 
   } catch (error) {
   }
 }
-
+document.addEventListener('DOMContentLoaded', (event) => {
+    reformulateSummary();
+});
 
 // Language switching functionality
 let currentLang = 'en';
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
+  reformulateSummary();
   const langButton = document.getElementById('langToggle');
   langButton.textContent = currentLang === 'en' ? 'FR' : 'EN';
 
