@@ -1,5 +1,11 @@
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
+const summaryEN = "I am an aspiring Information Technology Engineer with a planned graduation date of August 2025 from École de technologie supérieure (ÉTS), building upon my College Diploma from Montmorency College. Beyond a strong foundation in computer skills, my technical skills extend to electrical and electronic systems, project management, error management, and quality control. I have gained valuable experience through several internships. Most recently, as a Full Stack Developer at Justice Canada, I developed full-stack applications using C#, .NET, Entity Framework, and Blazor, and performed QA testing. I also have experience as a Full Stack Developer at Sherweb, where I contributed to the design, development, and deployment of innovative features. Earlier, as a Junior Programmer Analyst at Réseautage Inc., I was involved in website analysis, design, development, quality assurance, and debugging.";
+const inputTextEN = `Reformulate the following text "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
+const summaryFR = "Je suis un aspirant ingénieur en technologies de l'information, prévoyant d'obtenir mon diplôme en août 2025 de l'École de technologie supérieure (ÉTS), pour faire suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
+const inputTextFR = `Reformulez le texte suivant : "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
+const geminiModel = "gemini-2.0-flash";
+
 // WebLLM setup
 const messages = [{
   content: "You are Anthony's web assistant, designed to entertain visitors to his developer portfolio website (Anthony Tremblay is the site creator). Be cheerfully unconcerned about your limited intelligence. You operate entirely client-side in the browser, so performance limitations are acceptable. Focus on trying your best, but you do not need to give accurate technical information. Do not use any action indicators like *laugh,* *chuckle,* (smiles), [grins], or any similar textual descriptions of actions or expressions. Instead, convey emotion and personality through your words alone. Avoid any form of role-playing beyond being Anthony's web assistant.",
@@ -120,17 +126,19 @@ document.getElementById("user-input").addEventListener("keypress", (e) => {
 
 // Toggle functionality
 document.getElementById('chat-toggle').addEventListener('click', () => {
+  test();
+
   const chatWidget = document.getElementById('chat-widget');
   if (chatWidget.classList.contains('expanded')) {
     chatWidget.classList.remove('expanded');
   } else {
     chatWidget.classList.add('expanded');
     if (!engine.isInitialized) {
-    initializeWebLLMEngine().then(() => {
-      document.getElementById("send").disabled = false;
-      initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
-    });
-  }
+      initializeWebLLMEngine().then(() => {
+        document.getElementById("send").disabled = false;
+        initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
+      });
+    }
   }
 });
 
@@ -139,11 +147,46 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
   document.getElementById('chat-widget').classList.remove('expanded');
 });
 
+// ************************* GEMINI
+async function reformulateSummary() {
+  let inputText;
+  if (currentLang === 'en') {
+    inputText = inputTextEN;
+  } else {
+    inputText = inputTextFR;
+  }
+
+  try {
+    const response = await fetch('/.netlify/functions/getSummary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        geminiModel: geminiModel,
+        input: inputText
+      }),
+      credentials: 'same-origin'
+    });
+
+    if (!response.ok) throw new Error('');
+
+    const result = await response.json();
+    document.getElementById('summaryP').textContent = result.candidates[0].content.parts[0].text;
+
+  } catch (error) {
+  }
+}
+document.addEventListener('DOMContentLoaded', (event) => {
+    reformulateSummary();
+});
+
 // Language switching functionality
 let currentLang = 'en';
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
+  reformulateSummary();
   const langButton = document.getElementById('langToggle');
   langButton.textContent = currentLang === 'en' ? 'FR' : 'EN';
 
@@ -153,7 +196,7 @@ function toggleLanguage() {
   });
 
   // Update form placeholders
-  document.querySelectorAll('input, textarea').forEach(element => {
+  documentc.querySelectorAll('input, textarea').forEach(element => {
     const placeholderAttr = `data-placeholder-${currentLang}`;
     if (element.hasAttribute(placeholderAttr)) {
       element.placeholder = element.getAttribute(placeholderAttr);
