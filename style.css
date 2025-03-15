@@ -475,3 +475,14 @@ footer {
     width: 300px;
   }
 }
+
+/* Fade-in effect */
+.fade-in {
+  min-height: 10rem;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.fade-in.show {
+  opacity: 1;
+}
