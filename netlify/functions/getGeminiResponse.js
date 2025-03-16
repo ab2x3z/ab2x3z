@@ -38,14 +38,19 @@ async function generateContent(geminiModel, inputText) {
                     parts: [{
                         text: inputText
                     }]
-                }]
+                }],
+                generationConfig: {
+                    temperature: 2,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 8192,
+                    responseMimeType: "text/plain"
+                }
             }),
         });
-
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
         const data = await response.json();
         return data;
     } catch (error) {
