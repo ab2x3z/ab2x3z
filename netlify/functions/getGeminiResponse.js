@@ -6,10 +6,10 @@ export const handler = async (event, context) => {
         };
     }
 
-    const { geminiModel, input, origin } = JSON.parse(event.body); // Extract origin from body
+    const { geminiModel, input } = JSON.parse(event.body);
 
     try {
-        const result = await generateContent(geminiModel, input, origin); // Pass origin to generateContent
+        const result = await generateContent(geminiModel, input);
         return {
             statusCode: 200,
             headers: {
@@ -25,9 +25,8 @@ export const handler = async (event, context) => {
     }
 };
 
-async function generateContent(geminiModel, inputText, origin) {  // Origin is now an argument
+async function generateContent(geminiModel, inputText) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${process.env.GEMINI}`;
-    console.log("Calling Gemini from origin:", origin); // Log the origin
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -39,7 +38,14 @@ async function generateContent(geminiModel, inputText, origin) {  // Origin is n
                     parts: [{
                         text: inputText
                     }]
-                }]
+                }],
+                generationConfig: {
+                    temperature: 2,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 8192,
+                    responseMimeType: "text/plain"
+                }
             }),
         });
         if (!response.ok) {
