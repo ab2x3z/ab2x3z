@@ -126,8 +126,6 @@ document.getElementById("user-input").addEventListener("keypress", (e) => {
 
 // Toggle functionality
 document.getElementById('chat-toggle').addEventListener('click', () => {
-  test();
-
   const chatWidget = document.getElementById('chat-widget');
   if (chatWidget.classList.contains('expanded')) {
     chatWidget.classList.remove('expanded');
