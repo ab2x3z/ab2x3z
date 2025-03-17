@@ -20,8 +20,6 @@
     "oci-common": "^2.103.0",
     "oci-objectstorage": "^2.103.0",
     "oci-secrets": "^2.103.0",
-    "oracledb": "^6.8.0",
-    "three": "^0.173.0",
     "@mlc-ai/web-llm": "^0.2.20"
   }
 }
