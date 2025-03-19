@@ -4,14 +4,14 @@ const summaryEN = "I am an aspiring Information Technology Engineer with a plann
 const inputTextEN = `Reformulate the following text and talk to the first person. "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
 const summaryFR = "Je suis un aspirant ingénieur en technologies de l'information, prévoyant d'obtenir mon diplôme en août 2025 de l'École de technologie supérieure (ÉTS), pour faire suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
 const inputTextFR = `Reformulez le texte suivant et parle a la premiere personne. "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
-const geminiModel = "gemini-2.0-flash";
+const geminiModel = "gemini-2.0-flash-lite";
 
 // WebLLM setup
 const messages = [{
   content: "You are Anthony's web assistant, designed to entertain visitors to his developer portfolio website (Anthony Tremblay is the site creator). Be cheerfully unconcerned about your limited intelligence. You operate entirely client-side in the browser, so performance limitations are acceptable. Focus on trying your best, but you do not need to give accurate technical information. Do not use any action indicators like *laugh,* *chuckle,* (smiles), [grins], or any similar textual descriptions of actions or expressions. Instead, convey emotion and personality through your words alone. Avoid any form of role-playing beyond being Anthony's web assistant.",
   role: "system",
 }];
-const model = "Llama-3.2-1B-Instruct-q4f32_1-MLC"; // Too cringe
+const model = "Llama-3.2-1B-Instruct-q4f32_1-MLC";
 // const model = "Phi-3.5-mini-instruct-q4f16_1-MLC"; Too big
 // const model = "gemma-2-2b-it-q4f32_1-MLC"; Too big
 // const model = "SmolLM2-135M-Instruct-q0f32-MLC"; Too dumb
@@ -245,3 +245,5 @@ document.querySelectorAll('.project-card').forEach(card => {
 document.querySelectorAll('.skill-category').forEach(category => {
   observer.observe(category);
 });
+
+observer.observe(document.getElementById('summaryP'));
