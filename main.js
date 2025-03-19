@@ -223,9 +223,9 @@ document.querySelectorAll('nav a').forEach(anchor => {
   });
 });
 
-// Add animation to project cards when they come into view
+
 const observerOptions = {
-  threshold: 1
+  threshold: 0.8
 };
 
 const observer = new IntersectionObserver((entries) => {
@@ -238,12 +238,7 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, observerOptions);
 
-document.querySelectorAll('.project-card').forEach(card => {
-  observer.observe(card);
+// Observe all sections
+document.querySelectorAll('section').forEach(section => {
+  observer.observe(section);
 });
-
-document.querySelectorAll('.skill-category').forEach(category => {
-  observer.observe(category);
-});
-
-observer.observe(document.getElementById('summaryP'));
