@@ -225,7 +225,7 @@ document.querySelectorAll('nav a').forEach(anchor => {
 
 // Add animation to project cards when they come into view
 const observerOptions = {
-  threshold: 0.2
+  threshold: 1
 };
 
 const observer = new IntersectionObserver((entries) => {

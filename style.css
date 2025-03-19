@@ -3,7 +3,7 @@
   --text-color: #d1d5db; /* Light gray for text */
   --bg-color: #111827; /* Dark gray background */
   --section-bg: #1f2937; /* Slightly lighter dark gray for sections */
-  --header-height: 4rem;
+  --header-width: 7rem;
 }
 
 * {
@@ -21,6 +21,13 @@ body {
   line-height: 1.5;
   color: var(--text-color);
   background-color: var(--bg-color);
+  
+}
+/* Hide scrollbar */
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 .container {
@@ -34,25 +41,45 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  height: var(--header-height);
+  height: 100%;
+  width: var(--header-width);
   background-color: rgba(17, 24, 39, 0.95); /* Dark background with slight transparency */
   backdrop-filter: blur(5px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Light border */
+  border-right: none; /* Remove border */
   z-index: 1000;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 0 2rem;
+  padding: 2rem 0;
+}
+
+.github-link {
+  display: inline-block;
+}
+
+.github-icon {
+  position: absolute;
+  top : 1rem;
+  left: 2rem;
+  width: 32px;
+  height: 32px;
+  fill: var(--primary-color);
+  transition: fill 0.2s ease;
+}
+
+.github-link:hover .github-icon {
+  fill: #60a5fa; /* Change color on hover */
 }
 
 nav ul {
-  height: var(--header-height);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 2rem;
   list-style: none;
+  height: 100%;
 }
 
 nav a {
@@ -68,6 +95,8 @@ nav a:hover {
 
 /* Language Toggle Button */
 .lang-toggle {
+  position: absolute;
+  bottom: 1rem;
   background-color: var(--primary-color);
   color: #000000; /* Black text on light blue */
   border: none;
@@ -89,7 +118,7 @@ nav a:hover {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%); /* Darker gradient */
+  background: var(--bg-color);
 }
 
 .profile-container {
@@ -133,7 +162,7 @@ section {
 }
 
 section:nth-child(even) {
-  background-color: var(--section-bg);
+  background-color: var(--bg-color);
 }
 
 h2 {
@@ -286,35 +315,10 @@ button:hover {
 
 /* Footer */
 footer {
-  background-color: #030712; /* Very dark background */
+  background-color: var(--bg-color);
   color: #d1d5db; /* Light gray */
   padding: 2rem 0;
   text-align: center;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  #hero h1 {
-    font-size: 3rem;
-  }
-
-  .skills-grid,
-  .projects-grid {
-    grid-template-columns: 1fr;
-  }
-
-  nav ul {
-    gap: 1rem;
-  }
-
-  header {
-    padding: 0 1rem;
-  }
-
-  .profile-image {
-    width: 150px;
-    height: 150px;
-  }
 }
 
 /* Chat section styles */
@@ -480,7 +484,30 @@ footer {
   padding: 0.5rem;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
+  #hero h1 {
+    font-size: 3rem;
+  }
+
+  .skills-grid,
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  nav ul {
+    gap: 1rem;
+  }
+
+  header {
+    padding: 0 1rem;
+  }
+
+  .profile-image {
+    width: 150px;
+    height: 150px;
+  }
+
   .chat-popup {
     width: 300px;
   }
