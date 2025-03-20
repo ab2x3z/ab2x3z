@@ -24,31 +24,39 @@ dohe.position.set(0, 0, -20);
 
 const light = new THREE.PointLight(0xffffff, 50);
 
+// const loader = new THREE.TextureLoader();
+// const background = loader.load('', (texture) => {
+//     texture.colorSpace = THREE.SRGBColorSpace;
+// });
+// scene.background = background;
+
 scene.add(dohe, light);
 
 renderer.render(scene, camera);
 
+const rotSpeed = 0.0005;
+
 function onScroll() {
   camera.position.z = document.body.getBoundingClientRect().top / -500;
-  dohe.rotation.x += 0.005;
-  dohe.rotation.y += 0.01;
-  dohe.rotation.z += 0.005;
+  dohe.rotation.x += rotSpeed * 10;
+  dohe.rotation.y += rotSpeed * 20;
+  dohe.rotation.z += rotSpeed * 10;
   renderer.render(scene, camera);
 }
 document.body.onscroll = onScroll;
 
 function animate() {
   requestAnimationFrame(animate);
-  dohe.rotation.x += 0.001;
-  dohe.rotation.y += 0.002;
-  dohe.rotation.z += 0.001;
+  dohe.rotation.x += rotSpeed;
+  dohe.rotation.y += rotSpeed * 2;
+  dohe.rotation.z += rotSpeed;
   renderer.render(scene, camera);
 }
 
 animate();
 
 
-// WebLLM setup
+// ******************************  WebLLM Setup  ******************************
 const messages = [{
   content: "You are Anthony's web assistant, designed to entertain visitors to his developer portfolio website (Anthony Tremblay is the site creator). Be cheerfully unconcerned about your limited intelligence. You operate entirely client-side in the browser, so performance limitations are acceptable. Focus on trying your best, but you do not need to give accurate technical information. Do not use any action indicators like *laugh,* *chuckle,* (smiles), [grins], or any similar textual descriptions of actions or expressions. Instead, convey emotion and personality through your words alone. Avoid any form of role-playing beyond being Anthony's web assistant.",
   role: "system",
@@ -111,7 +119,7 @@ async function streamingGenerating(messages, onUpdate, onFinish, onError) {
   }
 }
 
-// Chat UI functions
+// ******************************  Chat UI functions  ******************************
 function appendMessage(message) {
   const chatBox = document.getElementById("chat-box");
   const container = document.createElement("div");
@@ -187,7 +195,7 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
   document.getElementById('chat-widget').classList.remove('expanded');
 });
 
-// ************************* GEMINI *************************
+// ******************************  GEMINI  ******************************
 function updateSummaryText(content) {
   const summaryElement = document.getElementById('summaryP');
   summaryElement.classList.remove('show');
@@ -227,7 +235,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   reformulateSummary();
 });
 
-// Language switching functionality
+// ******************************  Language switching  ******************************
 let currentLang = 'en';
 
 function toggleLanguage() {
@@ -255,6 +263,7 @@ function toggleLanguage() {
 
 document.getElementById('langToggle').addEventListener('click', toggleLanguage);
 
+
 // Smooth scroll for navigation links
 document.querySelectorAll('nav a').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
@@ -266,6 +275,7 @@ document.querySelectorAll('nav a').forEach(anchor => {
 });
 
 
+// ******************************  Observer  ******************************
 const observerOptions = {
   // smaller on mobile
   threshold: window.innerWidth < 768 ? 0.5 : 0.8
