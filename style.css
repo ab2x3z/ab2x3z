@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #93c5fd;
+  --primary-color: #4f9df7;
   /* Light blue for emphasis in dark mode */
   --text-color: #d1d5db;
   /* Light gray for text */
@@ -496,6 +496,10 @@ footer {
 .chat-input-container {
   margin-top: auto;
   padding: 0.5rem;
+}
+
+.active {
+  color: var(--primary-color);
 }
 
 /* Responsive Design */

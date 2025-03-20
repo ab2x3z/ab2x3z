@@ -30,7 +30,6 @@ renderer.render(scene, camera);
 
 function onScroll() {
   camera.position.z = document.body.getBoundingClientRect().top / -500;
-  
   dohe.rotation.x += 0.005;
   dohe.rotation.y += 0.01;
   dohe.rotation.z += 0.005;
@@ -275,8 +274,36 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('show');
+      switch (entry.target.id) {
+        case 'about':
+          document.getElementById('navAbout').classList.add('active');
+          break;
+        case 'skills':
+          document.getElementById('navSkills').classList.add('active');
+          break;
+        case 'projects':
+          document.getElementById('navProjects').classList.add('active');
+          break;
+        case 'contact':
+          document.getElementById('navContact').classList.add('active');
+          break;
+      }
     } else {
       entry.target.classList.remove('show');
+      switch (entry.target.id) {
+        case 'about':
+          document.getElementById('navAbout').classList.remove('active');
+          break;
+        case 'skills':
+          document.getElementById('navSkills').classList.remove('active');
+          break;
+        case 'projects':
+          document.getElementById('navProjects').classList.remove('active');
+          break;
+        case 'contact':
+          document.getElementById('navContact').classList.remove('active');
+          break;
+      }
     }
   });
 }, observerOptions);
