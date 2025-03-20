@@ -267,7 +267,8 @@ document.querySelectorAll('nav a').forEach(anchor => {
 
 
 const observerOptions = {
-  threshold: 0.8
+  // smaller on mobile
+  threshold: window.innerWidth < 768 ? 0.5 : 0.8
 };
 
 const observer = new IntersectionObserver((entries) => {

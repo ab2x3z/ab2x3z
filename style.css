@@ -53,10 +53,8 @@ header {
   height: 100%;
   width: var(--header-width);
   background-color: var(--card-color);
-  /* Dark background with slight transparency */
   backdrop-filter: blur(5px);
   border-right: none;
-  /* Remove border */
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -81,7 +79,6 @@ header {
 
 .github-link:hover .github-icon {
   fill: var(--hover-color);
-  /* Change color on hover */
 }
 
 nav ul {
@@ -106,7 +103,8 @@ nav a:hover {
 }
 
 .active {
-  color: var(--hover-color) !important;
+  color: var(--hover-color);
+  fill: var(--hover-color);
 }
 
 /* Language Toggle Button */
@@ -325,13 +323,12 @@ button {
 }
 
 button:hover {
-  background-color: #60a5fa;
+  background-color: var(--hover-color);
 }
 
 /* Footer */
 footer {
   color: #d1d5db;
-  /* Light gray */
   padding: 2rem 0;
   text-align: center;
 }
@@ -501,21 +498,29 @@ footer {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  #hero h1 {
-    font-size: 3rem;
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4rem;
+    flex-direction: row;
+    justify-content: center;
+    padding: 1rem;
   }
 
-  .skills-grid,
-  .projects-grid {
-    grid-template-columns: 1fr;
+  section {
+    height: auto;
+  }
+
+  .lang-toggle{
+    top: 1rem;
+    right: 1rem;
   }
 
   nav ul {
+    flex-direction: row;
     gap: 1rem;
-  }
-
-  header {
-    padding: 0 1rem;
   }
 
   .profile-image {
