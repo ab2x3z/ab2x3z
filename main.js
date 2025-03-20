@@ -272,38 +272,15 @@ const observerOptions = {
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
+    const sectionId = entry.target.id;
+    const navLinkId = `nav${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
+
     if (entry.isIntersecting) {
       entry.target.classList.add('show');
-      switch (entry.target.id) {
-        case 'about':
-          document.getElementById('navAbout').classList.add('active');
-          break;
-        case 'skills':
-          document.getElementById('navSkills').classList.add('active');
-          break;
-        case 'projects':
-          document.getElementById('navProjects').classList.add('active');
-          break;
-        case 'contact':
-          document.getElementById('navContact').classList.add('active');
-          break;
-      }
+      document.getElementById(navLinkId).classList.add('active');
     } else {
       entry.target.classList.remove('show');
-      switch (entry.target.id) {
-        case 'about':
-          document.getElementById('navAbout').classList.remove('active');
-          break;
-        case 'skills':
-          document.getElementById('navSkills').classList.remove('active');
-          break;
-        case 'projects':
-          document.getElementById('navProjects').classList.remove('active');
-          break;
-        case 'contact':
-          document.getElementById('navContact').classList.remove('active');
-          break;
-      }
+      document.getElementById(navLinkId).classList.remove('active');
     }
   });
 }, observerOptions);

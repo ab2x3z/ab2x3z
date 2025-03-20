@@ -1,13 +1,10 @@
 :root {
-  --primary-color: #4f9df7;
-  /* Light blue for emphasis in dark mode */
+  --primary-color: #71b3ff;
+  --hover-color: #2a7de2;
   --text-color: #d1d5db;
-  /* Light gray for text */
-  --bg-color: #111827;
-  /* Dark gray background */
-  --section-bg: #1f2937;
+  --chat-bg-color: #111827;
+  --chat-section-bg: #1f2937;
   --card-color: rgba(17, 24, 39, 0.8);
-  /* Slightly lighter dark gray for sections */
   --header-width: 6rem;
 }
 
@@ -78,12 +75,12 @@ header {
   left: 2rem;
   width: 32px;
   height: 32px;
-  fill: var(--primary-color);
+  fill: var(--text-color);
   transition: fill 0.2s ease;
 }
 
 .github-link:hover .github-icon {
-  fill: #60a5fa;
+  fill: var(--hover-color);
   /* Change color on hover */
 }
 
@@ -105,7 +102,11 @@ nav a {
 }
 
 nav a:hover {
-  color: var(--primary-color);
+  color: var(--hover-color);
+}
+
+.active {
+  color: var(--hover-color) !important;
 }
 
 /* Language Toggle Button */
@@ -124,7 +125,7 @@ nav a:hover {
 }
 
 .lang-toggle:hover {
-  background-color: #60a5fa;
+  background-color: var(--hover-color);
   /* Slightly darker light blue */
 }
 
@@ -445,7 +446,7 @@ footer {
   bottom: calc(100% + 1rem);
   right: 0;
   width: 40rem;
-  background-color: var(--section-bg);
+  background-color: var(--chat-section-bg);
   border-radius: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: none;
@@ -489,17 +490,13 @@ footer {
   flex: 1;
   height: auto;
   margin-bottom: 1rem;
-  background-color: var(--bg-color);
+  background-color: var(--chat-bg-color);
 }
 
 /* Modify existing chat styles to fit the new container */
 .chat-input-container {
   margin-top: auto;
   padding: 0.5rem;
-}
-
-.active {
-  color: var(--primary-color);
 }
 
 /* Responsive Design */
