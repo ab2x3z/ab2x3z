@@ -8,7 +8,7 @@
   --section-bg: #1f2937;
   --card-color: rgba(17, 24, 39, 0.8);
   /* Slightly lighter dark gray for sections */
-  --header-width: 7rem;
+  --header-width: 6rem;
 }
 
 * {

@@ -17,8 +17,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const geometry = new THREE.DodecahedronGeometry(10, 0);
-const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+const geometry = new THREE.IcosahedronGeometry(10, 0);
+const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
 const dohe = new THREE.Mesh(geometry, material);
 dohe.position.set(0, 0, -20);
 
