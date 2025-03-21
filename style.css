@@ -205,9 +205,6 @@ h2 {
 }
 
 /* Skills Section */
-#skills {
-}
-
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -518,7 +515,16 @@ footer {
     height: auto;
   }
 
-  .lang-toggle{
+
+  #skills>* {
+    transform: scale(0.7);
+  }
+
+  #projects>* {
+    transform: scale(0.7);
+  }
+
+  .lang-toggle {
     top: 1rem;
     right: 1rem;
   }
