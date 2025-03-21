@@ -193,12 +193,21 @@ h2 {
   /* Light blue headings */
 }
 
+/* About Section */
+#about {
+  display: flex;
+  align-items: center;
+}
+
 .summary {
   min-height: 10rem;
   transition: all 0.5s ease;
 }
 
 /* Skills Section */
+#skills {
+}
+
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -208,11 +217,9 @@ h2 {
 
 .skill-category {
   background: var(--card-color);
-  /* Dark background for skill categories */
   padding: 2rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-  /* Increased shadow */
   color: var(--text-color);
   transition: all 0.5s ease;
 }
@@ -240,10 +247,8 @@ h2 {
 
 .project-card {
   background: var(--card-color);
-  /* Dark background for project cards */
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-  /* Increased shadow */
   transition: all 0.5s ease;
   cursor: pointer;
   overflow: hidden;

@@ -270,10 +270,34 @@ document.querySelectorAll('nav a').forEach(anchor => {
     e.preventDefault();
     const targetId = this.getAttribute('href');
     const targetSection = document.querySelector(targetId);
-    targetSection.scrollIntoView({ behavior: 'smooth' });
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 });
 
+// ******************************  Snap-to-sections  ******************************
+let scrollTimeout;
+function scrollToNearestSection() {
+  const sections = document.querySelectorAll('section');
+  const scrollPosition = document.body.getBoundingClientRect().top * -1;
+
+  let nearestSection = sections[0];
+  let minDistance = Math.abs(scrollPosition - nearestSection.offsetTop);
+
+  sections.forEach(section => {
+    const distance = Math.abs(scrollPosition - section.offsetTop);
+    if (distance < minDistance) {
+      nearestSection = section;
+      minDistance = distance;
+    }
+  });
+
+  nearestSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+window.addEventListener('scroll', () => {
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(scrollToNearestSection, 50);
+});
 
 // ******************************  Observer  ******************************
 const observerOptions = {
