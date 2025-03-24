@@ -296,7 +296,7 @@ function scrollToNearestSection() {
 
 window.addEventListener('scroll', () => {
   clearTimeout(scrollTimeout);
-  scrollTimeout = setTimeout(scrollToNearestSection, 50);
+  scrollTimeout = setTimeout(scrollToNearestSection, 100);
 });
 
 // ******************************  Observer  ******************************
