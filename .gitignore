@@ -2,6 +2,8 @@ node_modules
 .vscode/*
 !.vscode/extensions.json
 .env
+ppllm.config.json
+ppllm.prompt.txt
 
 # Local Netlify folder
 .netlify

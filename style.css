@@ -498,6 +498,70 @@ footer {
   padding: 0.5rem;
 }
 
+/* Popup Warning Styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.popup-content {
+  background-color: var(--chat-section-bg);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  text-align: center;
+  border: 1px solid #4b5563;
+}
+
+.popup-content h3 {
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.popup-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.popup-buttons button {
+  padding: 0.75rem 1.5rem;
+}
+
+#cancel-chat-download {
+  background-color: #4b5563;
+  color: var(--text-color);
+}
+
+#cancel-chat-download:hover {
+  background-color: #6b7280;
+}
+
+.popup-overlay.hidden {
+  opacity: 0;
+  pointer-events: none; /* Prevent clicks when hidden */
+  display: flex; /* keep flex for transition */
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   header {

@@ -87,15 +87,15 @@
       <div class="container" style="margin-top: 2rem;">
         <h2 data-en="Projects" data-fr="Projets">Projects</h2>
         <div class="projects-grid">
-          <a href="https://github.com/ab2x3z/DeepPew-Extension" target="_blank"
+          <a href="https://etspfe020.netlify.app" target="_blank"
             style="text-decoration: none; color: inherit;">
             <div class="project-card">
-              <div class="project-image" style="background-image: url('/DeepPew.jpg')">
+              <div class="project-image" style="background-image: url('/')">
               </div>
-              <h3>DeepPew-Extension</h3>
-              <p data-en="An unfinished VSCode extension to chat with Ollama. Click to learn more."
-                data-fr="Une extension VSCode non terminée pour parler avec Ollama. Cliquez pour en savoir plus.">
-                An unfinished VSCode extension to chat with Ollama. Click to learn more.
+              <h3>Manic GT Dashboard</h3>
+              <p data-en="A gamified dashboard for the Manic GT, developed for a capstone project. Click for more information."
+                data-fr="Un tableau de bord ludifié pour la Manic GT, réalisé dans le cadre d'un projet de fin d'études. Cliquez pour en savoir plus.">
+                A gamified dashboard for the Manic GT, developed for a capstone project. Click for more information.
               </p>
             </div>
           </a>
@@ -116,7 +116,7 @@
               </div>
               <h3>Wacky Wheels Riot</h3>
               <p data-en="A simple rally game created as a course project. Click to learn more."
-                data-fr="Un jeu de rallye simple créé dans le cadre d'un projet de cours. Cliquez pour en savoir plus.">
+                data-fr="Un jeu de rally simple créé dans le cadre d'un projet de cours. Cliquez pour en savoir plus.">
                 A small rally video game made in the context of a course. Click to learn more.
               </p>
             </div>
@@ -167,6 +167,24 @@
             data-placeholder-fr="Écrivez un message..." placeholder="Type a message...">
           <button id="send" disabled data-en="Send" data-fr="Envoyer">Send</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="llm-warning-popup" class="popup-overlay hidden">
+    <div class="popup-content">
+      <h3 data-en="In-Browser AI Warning" data-fr="Avertissement IA locale">In-Browser AI Warning</h3>
+      <p data-en="You are about to download a small Large Language Model (LLM) to run directly in your browser. This allows for a private, offline chat experience."
+        data-fr="Vous êtes sur le point de télécharger un petit Grand Modèle de Langage (LLM) pour l'exécuter directement dans votre navigateur. Cela permet une expérience de discussion privée et hors ligne.">
+        You are about to download a small Large Language Model (LLM) to run directly in your browser. This allows for a private, offline chat experience.
+      </p>
+      <p data-en="Performance will vary depending on your computer's hardware. The initial download may take a moment."
+        data-fr="La performance variera en fonction du matériel de votre ordinateur. Le téléchargement initial peut prendre un moment.">
+        Performance will vary depending on your computer's hardware. The initial download may take a moment.
+      </p>
+      <div class="popup-buttons">
+        <button id="proceed-chat-download" data-en="Proceed" data-fr="Continuer">Proceed</button>
+        <button id="cancel-chat-download" data-en="Cancel" data-fr="Annuler">Cancel</button>
       </div>
     </div>
   </div>

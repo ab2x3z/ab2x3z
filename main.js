@@ -17,6 +17,97 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
+const cornerRadius = 20;
+
+/**
+ * Creates a THREE.Shape for a rectangle with wavy, irregular edges and rounded corners.
+ * @param {number} width - The width of the rectangle.
+ * @param {number} height - The height of the rectangle.
+ * @param {number} radius - The radius for the corners.
+ * @param {number} amplitude - The maximum displacement for the waves.
+ * @param {number} frequency - The approximate distance between wave crests.
+ * @returns {THREE.Shape}
+ */
+function createWavyRectShape(width, height, radius, amplitude, frequency) {
+    const shape = new THREE.Shape();
+    const x = -width / 2;
+    const y = -height / 2;
+
+    // Helper to generate a series of wavy points for a straight edge.
+    const getWavyEdgePoints = (startX, startY, endX, endY) => {
+        const points = [];
+        const distance = Math.hypot(endX - startX, endY - startY);
+        const numSegments = Math.max(2, Math.floor(distance / frequency));
+        const isHorizontal = Math.abs(startY - endY) < 1;
+
+        // Generate intermediate points for the spline.
+        // We start at i=1 because the spline begins from the current path point.
+        for (let i = 1; i < numSegments; i++) {
+            const t = i / numSegments;
+            const pointX = startX + t * (endX - startX);
+            const pointY = startY + t * (endY - startY);
+            
+            // Add a random perpendicular displacement.
+            let offsetX = 0;
+            let offsetY = 0;
+            if (isHorizontal) {
+                offsetY = (Math.random() - 0.5) * 2 * amplitude;
+            } else {
+                offsetX = (Math.random() - 0.5) * 2 * amplitude;
+            }
+            points.push(new THREE.Vector2(pointX + offsetX, pointY + offsetY));
+        }
+        
+        // Add the exact end point of the edge to ensure it connects correctly.
+        points.push(new THREE.Vector2(endX, endY));
+        return points;
+    };
+
+    // Begin path at the start of the top edge (after the corner).
+    shape.moveTo(x + radius, y);
+
+    // Top edge
+    shape.splineThru(getWavyEdgePoints(x + radius, y, x + width - radius, y));
+    // Top-right corner
+    shape.quadraticCurveTo(x + width, y, x + width, y + radius);
+
+    // Right edge
+    shape.splineThru(getWavyEdgePoints(x + width, y + radius, x + width, y + height - radius));
+    // Bottom-right corner
+    shape.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+
+    // Bottom edge
+    shape.splineThru(getWavyEdgePoints(x + width - radius, y + height, x + radius, y + height));
+    // Bottom-left corner
+    shape.quadraticCurveTo(x, y + height, x, y + height - radius);
+
+    // Left edge
+    shape.splineThru(getWavyEdgePoints(x, y + height - radius, x, y + radius));
+    // Top-left corner (to close the shape)
+    shape.quadraticCurveTo(x, y, x + radius, y);
+    
+    return shape;
+}
+
+// Create the background planes with wavy shapes and distinct parameters for each.
+const bgShape = createWavyRectShape(window.innerWidth * 0.3, window.innerHeight * 0.3, cornerRadius, 4, 30);
+const bgGeometry = new THREE.ShapeGeometry(bgShape);
+const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x0e0e0e });
+const backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+backgroundPlane.position.set(0, 0, -200);
+
+const midShape = createWavyRectShape(window.innerWidth * 0.25, window.innerHeight * 0.25, cornerRadius, 4, 25);
+const midGeometry = new THREE.ShapeGeometry(midShape);
+const midMaterial = new THREE.MeshBasicMaterial({ color: 0x1e1e1e });
+const middlePlane = new THREE.Mesh(midGeometry, midMaterial);
+middlePlane.position.set(0, 0, -190);
+
+const frontShape = createWavyRectShape(window.innerWidth * 0.2, window.innerHeight * 0.2, cornerRadius, 4, 20);
+const frontGeometry = new THREE.ShapeGeometry(frontShape);
+const frontMaterial = new THREE.MeshBasicMaterial({ color: 0x2e2e2e });
+const frontPlane = new THREE.Mesh(frontGeometry, frontMaterial);
+frontPlane.position.set(0, 0, -180);
+
 const geometry = new THREE.IcosahedronGeometry(10, 0);
 const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
 const dohe = new THREE.Mesh(geometry, material);
@@ -24,17 +115,18 @@ dohe.position.set(0, 0, -20);
 
 const light = new THREE.PointLight(0xffffff, 50);
 
-// const loader = new THREE.TextureLoader();
-// const background = loader.load('', (texture) => {
-//     texture.colorSpace = THREE.SRGBColorSpace;
-// });
-// scene.background = background;
-
-scene.add(dohe, light);
+scene.add(dohe, light, backgroundPlane, middlePlane, frontPlane);
 
 renderer.render(scene, camera);
 
 const rotSpeed = 0.0005;
+let mouseX = 0;
+let mouseY = 0;
+
+document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+});
 
 function onScroll() {
   camera.position.z = document.body.getBoundingClientRect().top / -500;
@@ -50,6 +142,13 @@ function animate() {
   dohe.rotation.x += rotSpeed;
   dohe.rotation.y += rotSpeed * 2;
   dohe.rotation.z += rotSpeed;
+
+  backgroundPlane.position.x = mouseX * 2.5;
+  backgroundPlane.position.y = mouseY * -1.25;
+  middlePlane.position.x = mouseX * 5;
+  middlePlane.position.y = mouseY * -2.5;
+  frontPlane.position.x = mouseX * 7.5;
+  frontPlane.position.y = mouseY * -3.75;
   renderer.render(scene, camera);
 }
 
@@ -120,6 +219,10 @@ async function streamingGenerating(messages, onUpdate, onFinish, onError) {
 }
 
 // ******************************  Chat UI functions  ******************************
+const chatWidget = document.getElementById('chat-widget');
+const llmWarningPopup = document.getElementById('llm-warning-popup');
+let llmWarningShown = false;
+
 function appendMessage(message) {
   const chatBox = document.getElementById("chat-box");
   const container = document.createElement("div");
@@ -174,25 +277,49 @@ document.getElementById("user-input").addEventListener("keypress", (e) => {
   if (e.key === "Enter" && !document.getElementById("send").disabled) onMessageSend();
 });
 
-// Toggle functionality
+// Chat opening and initialization logic
+function openChatAndInitLLM() {
+  chatWidget.classList.remove('collapsed');
+  chatWidget.classList.add('expanded');
+  if (!engine.isInitialized) {
+    initializeWebLLMEngine().then(() => {
+      document.getElementById("send").disabled = false;
+      if (initMessageContainer) {
+        initMessageContainer.querySelector(".message").textContent = "Okay I'm ready!";
+      }
+    });
+  }
+}
+
+// Toggle functionality with warning popup
 document.getElementById('chat-toggle').addEventListener('click', () => {
-  const chatWidget = document.getElementById('chat-widget');
   if (chatWidget.classList.contains('expanded')) {
     chatWidget.classList.remove('expanded');
+    chatWidget.classList.add('collapsed');
   } else {
-    chatWidget.classList.add('expanded');
-    if (!engine.isInitialized) {
-      initializeWebLLMEngine().then(() => {
-        document.getElementById("send").disabled = false;
-        initMessageContainer.querySelector(".message").textContent = "Okay im ready!";
-      });
+    if (!llmWarningShown) {
+      llmWarningPopup.classList.remove('hidden');
+    } else {
+      openChatAndInitLLM();
     }
   }
 });
 
 document.querySelector('.close-chat').addEventListener('click', (e) => {
   e.stopPropagation();
-  document.getElementById('chat-widget').classList.remove('expanded');
+  chatWidget.classList.remove('expanded');
+  chatWidget.classList.add('collapsed');
+});
+
+// Popup button listeners
+document.getElementById('proceed-chat-download').addEventListener('click', () => {
+  llmWarningPopup.classList.add('hidden');
+  llmWarningShown = true;
+  openChatAndInitLLM();
+});
+
+document.getElementById('cancel-chat-download').addEventListener('click', () => {
+  llmWarningPopup.classList.add('hidden');
 });
 
 // ******************************  GEMINI  ******************************
@@ -246,11 +373,16 @@ function toggleLanguage() {
 
   // Update all elements with data-en and data-fr attributes
   document.querySelectorAll('[data-en]').forEach(element => {
-    element.textContent = element.getAttribute(`data-${currentLang}`);
+    // For buttons, update the textContent. For inputs, update placeholder
+    if (element.tagName === 'BUTTON') {
+      element.textContent = element.getAttribute(`data-${currentLang}`);
+    } else {
+      element.textContent = element.getAttribute(`data-${currentLang}`);
+    }
   });
 
   // Update form placeholders
-  documentc.querySelectorAll('input, textarea').forEach(element => {
+  document.querySelectorAll('input, textarea').forEach(element => {
     const placeholderAttr = `data-placeholder-${currentLang}`;
     if (element.hasAttribute(placeholderAttr)) {
       element.placeholder = element.getAttribute(placeholderAttr);
