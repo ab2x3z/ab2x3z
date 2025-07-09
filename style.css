@@ -585,7 +585,7 @@ footer {
   }
 
   #projects>* {
-    transform: scale(0.7);
+    transform: scale(0.6);
   }
 
   .lang-toggle {
