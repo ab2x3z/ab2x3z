@@ -1,5 +1,9 @@
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 import * as THREE from 'three';
+import { init as initAnalytics, sendEvent } from './analytics.js';
+
+// Initialize analytics as soon as the script runs
+initAnalytics();
 
 const summaryEN = "I am an Information Technology Engineer who has recently graduated from École de technologie supérieure (ÉTS), complementing my College Diploma from Montmorency College. My technical skills go beyond a strong computer foundation to encompass electrical and electronic systems, project management, error management, and quality control. I've enriched my learning with valuable experience from several internships. Most recently, as a Full Stack Developer at Justice Canada, I developed full-stack applications using C#, .NET, Entity Framework, and Blazor, and performed QA testing. I also have experience as a Full Stack Developer at Sherweb, where I contributed to the design, development, and deployment of innovative features. Earlier, as a Junior Programmer Analyst at Réseautage Inc., I was involved in website analysis, design, development, quality assurance, and debugging.";
 const inputTextEN = `Reformulate the following text and talk to the first person. "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
@@ -297,6 +301,10 @@ document.getElementById('chat-toggle').addEventListener('click', () => {
     chatWidget.classList.remove('expanded');
     chatWidget.classList.add('collapsed');
   } else {
+    // Analytics: track when user opens the chat
+    if (chatWidget.classList.contains('collapsed')) {
+        sendEvent('chat_open');
+    }
     if (!llmWarningShown) {
       llmWarningPopup.classList.remove('hidden');
     } else {
@@ -313,6 +321,7 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
 
 // Popup button listeners
 document.getElementById('proceed-chat-download').addEventListener('click', () => {
+  sendEvent('chat_accept_llm_download');
   llmWarningPopup.classList.add('hidden');
   llmWarningShown = true;
   openChatAndInitLLM();
@@ -367,6 +376,7 @@ let currentLang = 'en';
 
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
+  sendEvent('language_toggle', { to: currentLang }); // Analytics event
   reformulateSummary();
   const langButton = document.getElementById('langToggle');
   langButton.textContent = currentLang === 'en' ? 'FR' : 'EN';
@@ -401,9 +411,20 @@ document.querySelectorAll('nav a').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
     const targetId = this.getAttribute('href');
+    sendEvent('nav_click', { target: targetId }); // Analytics event
     const targetSection = document.querySelector(targetId);
     targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
+});
+
+// Add a new listener for project clicks
+document.querySelectorAll('#projects a').forEach(projectLink => {
+    projectLink.addEventListener('click', function() {
+        const projectName = this.dataset.projectName;
+        if (projectName) {
+            sendEvent('project_click', { project: projectName }); // Analytics event
+        }
+    });
 });
 
 // ******************************  Snap-to-sections  ******************************

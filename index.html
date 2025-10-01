@@ -9,7 +9,6 @@
 </head>
 
 <body>
-  <form id="visited" name="visited" netlify></form>
   <header>
     <a href="https://github.com/ab2x3z" target="_blank" class="github-link">
       <svg id="navHero" class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -89,7 +88,7 @@
         <h2 data-en="Projects" data-fr="Projets">Projects</h2>
         <div class="projects-grid">
           <a href="https://github.com/ab2x3z/UniversalGyroAim" target="_blank"
-            style="text-decoration: none; color: inherit;">
+            style="text-decoration: none; color: inherit;" data-project-name="UniversalGyroAim">
             <div class="project-card">
               <div class="project-image" style="background-image: url('/UGA.png')">
               </div>
@@ -101,7 +100,7 @@
             </div>
           </a>
           <a href="https://github.com/ab2x3z/CheepChoop" target="_blank"
-            style="text-decoration: none; text-align: center;">
+            style="text-decoration: none; text-align: center;" data-project-name="CheepChoop">
             <div class="project-card">
               <div class="project-image" style="background-image: url('/CheepChoop.png')">
               </div>
@@ -112,7 +111,8 @@
               </p>
             </div>
           </a>
-          <a href="https://github.com/ab2x3z/LOG725" target="_blank" style="text-decoration: none; color: inherit;">
+          <a href="https://github.com/ab2x3z/LOG725" target="_blank" style="text-decoration: none; color: inherit;"
+            data-project-name="WackyWheelsRiot">
             <div class="project-card">
               <div class="project-image" style="background-image: url('/WackyWheelsRiot.jpg')">
               </div>
@@ -200,32 +200,6 @@
 
   <canvas id="bg"></canvas>
   <script type="module" src="/main.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (sessionStorage.getItem('visitedFormSubmitted')) {
-        console.log('Visitor form already submitted this session.');
-        return;
-      }
-
-      const visitedForm = document.getElementById('visited');
-      if (visitedForm) {
-        const formData = new URLSearchParams({
-          'form-name': visitedForm.getAttribute('name')
-        });
-
-        fetch('/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
-          })
-          .then(() => {
-            sessionStorage.setItem('visitedFormSubmitted', 'true');
-          })
-      }
-    });
-  </script>
 </body>
 
 </html>
