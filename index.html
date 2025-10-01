@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <form id="visited" name="visited" netlify></form>
   <header>
     <a href="https://github.com/ab2x3z" target="_blank" class="github-link">
       <svg id="navHero" class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -99,7 +100,8 @@
               </p>
             </div>
           </a>
-          <a href="https://github.com/ab2x3z/CheepChoop" target="_blank" style="text-decoration: none; text-align: center;">
+          <a href="https://github.com/ab2x3z/CheepChoop" target="_blank"
+            style="text-decoration: none; text-align: center;">
             <div class="project-card">
               <div class="project-image" style="background-image: url('/CheepChoop.png')">
               </div>
@@ -176,7 +178,8 @@
       <h3 data-en="In-Browser AI Warning" data-fr="Avertissement IA locale">In-Browser AI Warning</h3>
       <p data-en="You are about to download a small Large Language Model (LLM) to run directly in your browser. This allows for a private, offline chat experience."
         data-fr="Vous êtes sur le point de télécharger un petit Grand Modèle de Langage (LLM) pour l'exécuter directement dans votre navigateur. Cela permet une expérience de discussion privée et hors ligne.">
-        You are about to download a small Large Language Model (LLM) to run directly in your browser. This allows for a private, offline chat experience.
+        You are about to download a small Large Language Model (LLM) to run directly in your browser. This allows for a
+        private, offline chat experience.
       </p>
       <p data-en="Performance will vary depending on your computer's hardware. The initial download may take a moment."
         data-fr="La performance variera en fonction du matériel de votre ordinateur. Le téléchargement initial peut prendre un moment.">
@@ -197,6 +200,32 @@
 
   <canvas id="bg"></canvas>
   <script type="module" src="/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (sessionStorage.getItem('visitedFormSubmitted')) {
+        console.log('Visitor form already submitted this session.');
+        return;
+      }
+
+      const visitedForm = document.getElementById('visited');
+      if (visitedForm) {
+        const formData = new URLSearchParams({
+          'form-name': visitedForm.getAttribute('name')
+        });
+
+        fetch('/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+          })
+          .then(() => {
+            sessionStorage.setItem('visitedFormSubmitted', 'true');
+          })
+      }
+    });
+  </script>
 </body>
 
 </html>
