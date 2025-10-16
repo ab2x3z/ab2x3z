@@ -251,6 +251,7 @@ function onMessageSend() {
   const message = { content: input.value.trim(), role: "user" };
   if (message.content.length === 0) return;
 
+  sendEvent('chat_message_sent'); // Analytics event
   document.getElementById("send").disabled = true;
   messages.push(message);
   appendMessage(message);
@@ -300,6 +301,7 @@ document.getElementById('chat-toggle').addEventListener('click', () => {
   if (chatWidget.classList.contains('expanded')) {
     chatWidget.classList.remove('expanded');
     chatWidget.classList.add('collapsed');
+    sendEvent('chat_close', { from: 'toggle_button' }); // Analytics event
   } else {
     // Analytics: track when user opens the chat
     if (chatWidget.classList.contains('collapsed')) {
@@ -317,6 +319,7 @@ document.querySelector('.close-chat').addEventListener('click', (e) => {
   e.stopPropagation();
   chatWidget.classList.remove('expanded');
   chatWidget.classList.add('collapsed');
+  sendEvent('chat_close', { from: 'x_button' }); // Analytics event
 });
 
 // Popup button listeners
@@ -328,6 +331,7 @@ document.getElementById('proceed-chat-download').addEventListener('click', () =>
 });
 
 document.getElementById('cancel-chat-download').addEventListener('click', () => {
+  sendEvent('chat_cancel_llm_download'); // Analytics event
   llmWarningPopup.classList.add('hidden');
 });
 
@@ -406,6 +410,13 @@ function toggleLanguage() {
 document.getElementById('langToggle').addEventListener('click', toggleLanguage);
 
 
+// ******************************  ANALYTICS EVENT LISTENERS  ******************************
+
+// Github link click
+document.querySelector('.github-link').addEventListener('click', () => {
+    sendEvent('external_link_click', { destination: 'github_header' });
+});
+
 // Smooth scroll for navigation links
 document.querySelectorAll('nav a').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
@@ -426,6 +437,12 @@ document.querySelectorAll('#projects a').forEach(projectLink => {
         }
     });
 });
+
+// Contact form submission
+document.getElementById('contactForm').addEventListener('submit', () => {
+    sendEvent('contact_form_submit');
+});
+
 
 // ******************************  Snap-to-sections  ******************************
 let scrollTimeout;
