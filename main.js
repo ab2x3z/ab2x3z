@@ -9,7 +9,6 @@ const summaryEN = "I am an Information Technology Engineer who has recently grad
 const inputTextEN = `Reformulate the following text and talk to the first person. "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
 const summaryFR = "Je suis écemment diplômé de l'École de technologie supérieure (ÉTS) en génie des technologies de l'information, suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
 const inputTextFR = `Reformulez le texte suivant et parle a la premiere personne. "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
-const geminiModel = "gemini-3.1-flash-lite";
 
 // ******************************  3D Setup  ******************************
 const scene = new THREE.Scene();
@@ -354,7 +353,6 @@ async function reformulateSummary() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        geminiModel: geminiModel,
         input: inputText
       }),
       credentials: 'same-origin'

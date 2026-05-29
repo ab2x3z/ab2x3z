@@ -6,10 +6,10 @@ export const handler = async (event, context) => {
         };
     }
 
-    const { geminiModel, input } = JSON.parse(event.body);
+    const { input } = JSON.parse(event.body);
 
     try {
-        const result = await generateContent(geminiModel, input);
+        const result = await generateContent(input);
         return {
             statusCode: 200,
             headers: {
@@ -25,8 +25,8 @@ export const handler = async (event, context) => {
     }
 };
 
-async function generateContent(geminiModel, inputText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${process.env.GEMINI}`;
+async function generateContent(inputText) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${process.env.GEMINI_MODEL}:generateContent?key=${process.env.GEMINI}`;
     try {
         const response = await fetch(url, {
             method: 'POST',
