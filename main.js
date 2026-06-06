@@ -446,49 +446,59 @@ document.getElementById('contactForm').addEventListener('submit', () => {
 let scrollTimeout;
 function scrollToNearestSection() {
   const sections = document.querySelectorAll('section');
-  const scrollPosition = document.body.getBoundingClientRect().top * -1;
+  const screenCenterY = window.scrollY + window.innerHeight / 2;
 
   let nearestSection = sections[0];
-  let minDistance = Math.abs(scrollPosition - nearestSection.offsetTop);
+  let minDistance = Infinity;
 
   sections.forEach(section => {
-    const distance = Math.abs(scrollPosition - section.offsetTop);
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const sectionCenterY = sectionTop + section.offsetHeight / 2;
+    const distance = Math.abs(screenCenterY - sectionCenterY);
+
     if (distance < minDistance) {
       nearestSection = section;
       minDistance = distance;
     }
   });
 
-  nearestSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const targetTop = nearestSection.getBoundingClientRect().top + window.scrollY;
+  const targetCenterY = targetTop + nearestSection.offsetHeight / 2;
+  const scrollTargetY = targetCenterY - window.innerHeight / 2;
+
+  window.scrollTo({ top: scrollTargetY, behavior: 'smooth' });
 }
 
 window.addEventListener('scroll', () => {
+  if (window.innerWidth < 768) return;
+  
   clearTimeout(scrollTimeout);
   scrollTimeout = setTimeout(scrollToNearestSection, 100);
 });
 
-// ******************************  Observer  ******************************
-const observerOptions = {
-  // smaller on mobile
-  threshold: window.innerWidth < 768 ? 0.5 : 0.8
-};
+// ******************************  Visibility Check  ******************************
+function checkSectionsVisibility() {
+  const screenCenter = window.scrollY + window.innerHeight / 2;
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    const sectionId = entry.target.id;
+  document.querySelectorAll('section').forEach(section => {
+    const sectionId = section.id;
     const navLinkId = `nav${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
+    const navElement = document.getElementById(navLinkId);
 
-    if (entry.isIntersecting) {
-      entry.target.classList.add('show');
-      document.getElementById(navLinkId).classList.add('active');
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const sectionCenter = sectionTop + section.offsetHeight / 2;
+
+    if (Math.abs(screenCenter - sectionCenter) < window.innerHeight / 2) {
+      section.classList.add('show');
+      if (navElement) navElement.classList.add('active');
     } else {
-      entry.target.classList.remove('show');
-      document.getElementById(navLinkId).classList.remove('active');
+      section.classList.remove('show');
+      if (navElement) navElement.classList.remove('active');
     }
   });
-}, observerOptions);
+}
 
-// Observe all sections
-document.querySelectorAll('section').forEach(section => {
-  observer.observe(section);
-});
+window.addEventListener('scroll', checkSectionsVisibility);
+window.addEventListener('resize', checkSectionsVisibility);
+
+checkSectionsVisibility();

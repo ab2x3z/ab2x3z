@@ -41,6 +41,7 @@ body::-webkit-scrollbar {
 
 .container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 2rem;
 }
@@ -175,9 +176,13 @@ nav a:hover {
 
 /* Sections */
 section {
-  padding: 5rem 0;
+  padding: 2rem 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   transition: all 0.5s ease;
-  height: 80vh;
 
   /*Hidden*/
   opacity: 0;
@@ -290,8 +295,7 @@ h2 {
 .show {
   opacity: 1;
   filter: blur(0);
-  transform: translateX(0);
-  transform: translateY(0);
+  transform: translate(0, 0);
 }
 
 input,
@@ -571,31 +575,57 @@ footer {
     width: 100%;
     height: 4rem;
     flex-direction: row;
-    justify-content: center;
-    padding: 1rem;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 1.5rem; /* Space between Icon, Nav, and Lang Button */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    
+    /* Hide scrollbar for a cleaner look */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  header::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome/Safari */
+  }
+
+  .github-icon {
+    position: static;
+    flex-shrink: 0;
+  }
+
+  .lang-toggle {
+    position: static;
+    flex-shrink: 0;
+  }
+
+  nav {
+    flex-shrink: 0;
+  }
+
+  nav ul {
+    flex-direction: row;
+    gap: 1rem;
   }
 
   section {
     height: auto;
   }
 
-
-  #skills>* {
+  #skills > * {
     transform: scale(0.7);
+    transform-origin: top center;
+    padding-top: 30rem;
   }
 
-  #projects>* {
+  #projects > * {
     transform: scale(0.6);
-  }
-
-  .lang-toggle {
-    top: 1rem;
-    right: 1rem;
-  }
-
-  nav ul {
-    flex-direction: row;
-    gap: 1rem;
+    transform-origin: top center;
+    padding-top: 150rem;
   }
 
   .profile-image {

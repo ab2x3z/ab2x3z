@@ -12,6 +12,11 @@ async function sendEvent(eventType, eventDetails = {}) {
     console.error("Analytics not initialized.");
     return;
   }
+  
+  if (window.location.hostname === 'localhost') {
+    console.log(`[Dev Analytics] Event blocked: ${eventType}`, eventDetails);
+    return;
+  }
 
   const payload = {
     visitId,
