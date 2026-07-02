@@ -10,3 +10,4 @@ ppllm.prompt.txt
 .aider*
 .venv
 deno.lock
+package-lock.json

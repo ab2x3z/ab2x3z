@@ -1,10 +1,12 @@
 // This will hold the unique ID for the entire page session.
 let visitId = null;
 let initialVisitData = null;
+let fullDeviceInfo = null; // Keeps a persistent copy for the final webhook
 let pageLoadTime = null;
+let sessionHistory = []; // Array to store every event during the session
 
 /**
- * Sends an analytics event to the backend.
+ * Sends an analytics event to the backend and logs it in session history.
  * @param {string} eventType - The type of event (e.g., 'page_load', 'nav_click').
  * @param {object} eventDetails - An object with additional data about the event.
  */
@@ -19,11 +21,18 @@ async function sendEvent(eventType, eventDetails = {}) {
     return;
   }
 
+  // Log the event locally for the end-of-session webhook
+  sessionHistory.push({
+    time: new Date().toISOString(),
+    type: eventType,
+    details: eventDetails
+  });
+
   const payload = {
     visitId,
     eventType,
     eventDetails: JSON.stringify(eventDetails),
-    // Only include the detailed visit data for the very first event
+    // Only include the detailed visit data for the very first event to Oracle
     ...(initialVisitData && {
       userAgent: initialVisitData.userAgent,
       screenWidth: initialVisitData.screenWidth,
@@ -41,7 +50,7 @@ async function sendEvent(eventType, eventDetails = {}) {
       body: JSON.stringify(payload),
       keepalive: true, // IMPORTANT: Ensures the request finishes even if the tab is closing
     });
-    // After the first successful send, clear the initial data so it's not sent again.
+    // After the first successful send, clear the initial data so it's not sent again to Oracle.
     if (initialVisitData) {
       initialVisitData = null;
     }
@@ -66,6 +75,9 @@ function init() {
     screenHeight: window.screen.height,
     browserLang: navigator.language,
   };
+  
+  // Store a permanent copy to send to Macrodroid later
+  fullDeviceInfo = { ...initialVisitData };
 
   // Send the initial 'page_load' event.
   sendEvent('page_load', { path: window.location.pathname });
@@ -80,6 +92,26 @@ function init() {
         path: window.location.pathname,
         duration: durationSeconds
       });
+
+      // --- MACRODROID WEBHOOK TRIGGER ---
+      if (window.location.hostname !== 'localhost') {
+        const sessionData = {
+          visitId: visitId,
+          durationSeconds: durationSeconds,
+          device: fullDeviceInfo,
+          eventCount: sessionHistory.length,
+          history: sessionHistory
+        };
+
+        fetch('/.netlify/functions/macrodroid-webhook', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(sessionData),
+          keepalive: true 
+        }).catch(err => console.error('Macrodroid webhook proxy failed:', err));
+      }
     }
   });
 }
