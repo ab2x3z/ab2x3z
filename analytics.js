@@ -15,7 +15,7 @@ async function sendEvent(eventType, eventDetails = {}) {
     console.error("Analytics not initialized.");
     return;
   }
-  
+
   if (window.location.hostname === 'localhost') {
     console.log(`[Dev Analytics] Event blocked: ${eventType}`, eventDetails);
     return;
@@ -75,7 +75,7 @@ function init() {
     screenHeight: window.screen.height,
     browserLang: navigator.language,
   };
-  
+
   // Store a permanent copy to send to Macrodroid later
   fullDeviceInfo = { ...initialVisitData };
 
@@ -87,29 +87,52 @@ function init() {
     if (document.visibilityState === 'hidden') {
       // Calculate how many seconds they spent on the page
       const durationSeconds = Math.round((Date.now() - pageLoadTime) / 1000);
-      
-      sendEvent('page_leave', { 
+
+      sendEvent('page_leave', {
         path: window.location.pathname,
         duration: durationSeconds
       });
 
       // --- MACRODROID WEBHOOK TRIGGER ---
       if (window.location.hostname !== 'localhost') {
+
+        // 1. Format the history into a neat list
+        let historyText = "";
+        sessionHistory.forEach((event) => {
+          // Get just the time using local time format
+          const timeString = new Date(event.time).toLocaleTimeString('fr-CA');
+
+          // Format details (if any)
+          let detailStr = "";
+          if (Object.keys(event.details).length > 0) {
+            // E.g., convert {"to":"fr"} to "to: fr"
+            detailStr = " -> " + Object.entries(event.details).map(([k, v]) => `${k}: ${v}`).join(', ');
+          }
+
+          historyText += `\n  [${timeString}] ${event.type}${detailStr}`;
+        });
+
+        // 2. Build the final nicely formatted string
+        const formattedMessage = `🌐 New Website Visit!
+⏱ Duration: ${durationSeconds} seconds
+📱 Screen: ${fullDeviceInfo.screenWidth}x${fullDeviceInfo.screenHeight}
+🗣 Lang: ${fullDeviceInfo.browserLang}
+
+👣 Event History (${sessionHistory.length} actions):${historyText}`;
+
+        // 3. Send it as a single parameter called "message"
         const sessionData = {
-          visitId: visitId,
-          durationSeconds: durationSeconds,
-          device: fullDeviceInfo,
-          eventCount: sessionHistory.length,
-          history: sessionHistory
+          message: formattedMessage
         };
 
+        // Forward to the Netlify function
         fetch('/.netlify/functions/macrodroid-webhook', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(sessionData),
-          keepalive: true 
+          keepalive: true
         }).catch(err => console.error('Macrodroid webhook proxy failed:', err));
       }
     }
