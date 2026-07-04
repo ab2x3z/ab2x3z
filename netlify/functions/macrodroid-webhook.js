@@ -4,6 +4,7 @@ export const handler = async (event, context) => {
   }
 
   try {
+    // 1. Parse the incoming data from analytics.js
     const sessionData = JSON.parse(event.body);
     const webhookUrl = process.env.MACRODROID_WEBHOOK_URL;
 
@@ -15,18 +16,20 @@ export const handler = async (event, context) => {
       };
     }
 
-    // Forward the payload to MacroDroid
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(sessionData),
+    // 2. Safely URL-encode the formatted message (handles emojis, newlines, etc.)
+    const queryParams = new URLSearchParams({
+      message: sessionData.message || "Empty message received"
+    }).toString();
+
+    // 3. Send to MacroDroid using a GET request with the parameter in the URL
+    // This guarantees MacroDroid will map it directly to your 'message' local variable
+    const response = await fetch(`${webhookUrl}?${queryParams}`, {
+      method: 'GET'
     });
 
     return {
       statusCode: response.status,
-      body: JSON.stringify({ message: 'Webhook forwarded successfully' })
+      body: JSON.stringify({ success: true })
     };
   } catch (error) {
     console.error('Error forwarding to MacroDroid:', error);
