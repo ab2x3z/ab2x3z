@@ -6,6 +6,32 @@ let pageLoadTime = null;
 let sessionHistory = []; // Array to store every event during the session
 
 /**
+ * Helper function to turn a messy User-Agent into a clean "Browser on OS" string.
+ */
+function getShortUserAgent(ua) {
+  let browser = "Unknown Browser";
+  let os = "Unknown OS";
+
+  // Detect Browser (Order is important here!)
+  if (/OPR\/|Opera\//.test(ua)) browser = "Opera";
+  else if (/Edg\//.test(ua)) browser = "Edge";
+  else if (/SamsungBrowser\//.test(ua)) browser = "Samsung Internet";
+  else if (/Firefox\//.test(ua)) browser = "Firefox";
+  else if (/Chrome\//.test(ua)) browser = "Chrome";
+  else if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) browser = "Safari";
+  else if (/Trident\/|MSIE /.test(ua)) browser = "Internet Explorer";
+
+  // Detect OS
+  if (/Windows/.test(ua)) os = "Windows";
+  else if (/Android/.test(ua)) os = "Android";
+  else if (/(iPhone|iPad|iPod)/.test(ua)) os = "iOS";
+  else if (/Mac OS X|Macintosh/.test(ua)) os = "macOS";
+  else if (/Linux/.test(ua)) os = "Linux";
+
+  return `${browser} on ${os}`;
+}
+
+/**
  * Sends an analytics event to the backend and logs it in session history.
  * @param {string} eventType - The type of event (e.g., 'page_load', 'nav_click').
  * @param {object} eventDetails - An object with additional data about the event.
@@ -112,14 +138,17 @@ function init() {
           historyText += `\n  [${timeString}] ${event.type}${detailStr}`;
         });
 
+        // Parse the user agent for the notification
+        const shortUserAgent = getShortUserAgent(fullDeviceInfo.userAgent);
+
         // 2. Build the final nicely formatted string
         const formattedMessage = `🌐 New Website Visit!
-        ⏱ Duration: ${durationSeconds} seconds
-        🌐 UserAgent: ${fullDeviceInfo.userAgent}
-        📱 Screen: ${fullDeviceInfo.screenWidth}x${fullDeviceInfo.screenHeight}
-        🗣 Lang: ${fullDeviceInfo.browserLang}
-              
-        👣 Event History (${sessionHistory.length} actions):${historyText}`;
+⏱ Duration: ${durationSeconds} seconds
+🖥️ System: ${shortUserAgent}
+📱 Screen: ${fullDeviceInfo.screenWidth}x${fullDeviceInfo.screenHeight}
+🗣 Lang: ${fullDeviceInfo.browserLang}
+
+👣 Event History (${sessionHistory.length} actions):${historyText}`;
 
         // 3. Send it as a single parameter called "message"
         const sessionData = {
