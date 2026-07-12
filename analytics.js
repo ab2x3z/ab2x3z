@@ -114,11 +114,12 @@ function init() {
 
         // 2. Build the final nicely formatted string
         const formattedMessage = `🌐 New Website Visit!
-⏱ Duration: ${durationSeconds} seconds
-📱 Screen: ${fullDeviceInfo.screenWidth}x${fullDeviceInfo.screenHeight}
-🗣 Lang: ${fullDeviceInfo.browserLang}
-
-👣 Event History (${sessionHistory.length} actions):${historyText}`;
+        ⏱ Duration: ${durationSeconds} seconds
+        🌐 UserAgent: ${fullDeviceInfo.userAgent}
+        📱 Screen: ${fullDeviceInfo.screenWidth}x${fullDeviceInfo.screenHeight}
+        🗣 Lang: ${fullDeviceInfo.browserLang}
+              
+        👣 Event History (${sessionHistory.length} actions):${historyText}`;
 
         // 3. Send it as a single parameter called "message"
         const sessionData = {
