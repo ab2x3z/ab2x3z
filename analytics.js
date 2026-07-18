@@ -42,7 +42,7 @@ function getLikelyDevice(ua, width, height, touchPoints) {
 
   // 1. Detect Apple Devices
   const isIOS = /(iPhone|iPad|iPod)/.test(ua) || (/Macintosh/.test(ua) && touchPoints > 1);
-  
+
   if (isIOS) {
     const appleDevices = {
       // Latest 2024-2026 models
@@ -92,7 +92,7 @@ function getLikelyDevice(ua, width, height, touchPoints) {
       "412x914": "Samsung Galaxy S Ultra / Note (Older)"
     };
     if (androidDevices[res]) return `${androidDevices[res]} (or similar)`;
-    
+
     if (/Tablet/i.test(ua) || !/Mobile/i.test(ua)) return "Android Tablet";
     return "Android Smartphone";
   }
@@ -124,7 +124,7 @@ async function sendEvent(eventType, eventDetails = {}) {
     console.log(`[Dev Analytics] Event blocked: ${eventType}`, eventDetails);
     return;
   }
-  
+
   // Log the event locally for the end-of-session webhook
   sessionHistory.push({
     time: new Date().toISOString(),
@@ -164,7 +164,7 @@ async function sendEvent(eventType, eventDetails = {}) {
  */
 function init() {
   visitId = crypto.randomUUID();
-  pageLoadTime = Date.now(); 
+  pageLoadTime = Date.now();
 
   // Collect non-personal device information for the visit.
   initialVisitData = {
@@ -193,19 +193,38 @@ function init() {
 
         let historyText = "";
         sessionHistory.forEach((event) => {
-          const timeString = new Date(event.time).toLocaleTimeString('fr-CA');
+          // Format time using the Montreal / Eastern Standard Time Zone (America/Toronto)
+          const timeString = new Date(event.time).toLocaleTimeString('fr-CA', {
+            timeZone: 'America/Toronto',
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          });
+
+          // Create a clean format showing just the time, action, and main detail if applicable
           let detailStr = "";
-          if (Object.keys(event.details).length > 0) {
-            detailStr = " -> " + Object.entries(event.details).map(([k, v]) => `${k}: ${v}`).join(', ');
+          if (event.details && event.type !== 'page_leave') {
+            const mainValue = event.details.path ||
+              event.details.target ||
+              event.details.project ||
+              event.details.to ||
+              event.details.destination ||
+              event.details.from ||
+              Object.values(event.details)[0];
+            if (mainValue !== undefined) {
+              detailStr = ` (${mainValue})`;
+            }
           }
           historyText += `\n  [${timeString}] ${event.type}${detailStr}`;
         });
 
+
         // Parse the Helpers
         const shortUserAgent = getShortUserAgent(fullDeviceInfo.userAgent);
         const likelyDevice = getLikelyDevice(
-          fullDeviceInfo.userAgent, 
-          fullDeviceInfo.screenWidth, 
+          fullDeviceInfo.userAgent,
+          fullDeviceInfo.screenWidth,
           fullDeviceInfo.screenHeight,
           fullDeviceInfo.touchPoints
         );
