@@ -6,9 +6,7 @@ import { init as initAnalytics, sendEvent } from './analytics.js';
 initAnalytics();
 
 const summaryEN = "I am an Information Technology Engineer who has recently graduated from École de technologie supérieure (ÉTS), complementing my College Diploma from Montmorency College. My technical skills go beyond a strong computer foundation to encompass electrical and electronic systems, project management, error management, and quality control. I've enriched my learning with valuable experience from several internships. Most recently, as a Full Stack Developer at Justice Canada, I developed full-stack applications using C#, .NET, Entity Framework, and Blazor, and performed QA testing. I also have experience as a Full Stack Developer at Sherweb, where I contributed to the design, development, and deployment of innovative features. Earlier, as a Junior Programmer Analyst at Réseautage Inc., I was involved in website analysis, design, development, quality assurance, and debugging.";
-const inputTextEN = `Reformulate the following text and talk to the first person. "${summaryEN}" Reply ONLY with the reformulated text. Do NOT include any introductory or concluding remarks.`;
-const summaryFR = "Je suis écemment diplômé de l'École de technologie supérieure (ÉTS) en génie des technologies de l'information, suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
-const inputTextFR = `Reformulez le texte suivant et parle a la premiere personne. "${summaryFR}". Répondez UNIQUEMENT avec le texte reformulé. N'incluez aucune remarque introductive ou conclusive.`;
+const summaryFR = "Je suis récemment diplômé de l'École de technologie supérieure (ÉTS) en génie des technologies de l'information, suite à mon DEC du Collège Montmorency. Au-delà d'une solide base en compétences informatiques, mes compétences techniques s'étendent aux systèmes électriques et électroniques, à la gestion de projet, à la gestion des erreurs et au contrôle de la qualité. J'ai acquis une expérience précieuse grâce à plusieurs stages. Plus récemment, en tant que développeur Full Stack à Justice Canada, j'ai développé des applications complètes utilisant C#, .NET, Entity Framework et Blazor, et j'ai effectué des tests d'assurance qualité. J'ai également de l'expérience en tant que développeur Full Stack chez Sherweb, où j'ai contribué à la conception, au développement et au déploiement de fonctionnalités innovantes. Auparavant, en tant qu'analyste-programmeur junior chez Réseautage Inc., j'ai participé à l'analyse, à la conception, au développement, à l'assurance qualité et au débogage de sites Web.";
 
 // ******************************  3D Setup  ******************************
 const scene = new THREE.Scene();
@@ -334,43 +332,23 @@ document.getElementById('cancel-chat-download').addEventListener('click', () => 
   llmWarningPopup.classList.add('hidden');
 });
 
-// ******************************  GEMINI  ******************************
-function updateSummaryText(content) {
+// ******************************  ABOUT SUMMARY  ******************************
+function updateSummaryText() {
   const summaryElement = document.getElementById('summaryP');
   summaryElement.classList.remove('show');
   setTimeout(() => {
-    summaryElement.textContent = content;
+    summaryElement.textContent = currentLang === 'en' ? summaryEN : summaryFR;
     summaryElement.classList.add('show');
   }, 500); // Delay to allow the fade-out effect
 }
 
-async function reformulateSummary() {
-  let inputText = currentLang === 'en' ? inputTextEN : inputTextFR;
-  try {
-    const response = await fetch('/.netlify/functions/getGeminiResponse', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        input: inputText
-      }),
-      credentials: 'same-origin'
-    });
-
-    if (!response.ok) throw new Error('');
-
-    const result = await response.json();
-    updateSummaryText(result.candidates[0].content.parts[0].text);
-
-  } catch (error) {
-    // display the regular summary if an error occurs
-    updateSummaryText(currentLang === 'en' ? summaryEN : summaryFR);
-  }
-}
-
 document.addEventListener('DOMContentLoaded', (event) => {
-  reformulateSummary();
+  const summaryElement = document.getElementById('summaryP');
+  summaryElement.textContent = currentLang === 'en' ? summaryEN : summaryFR;
+  
+  setTimeout(() => {
+    summaryElement.classList.add('show');
+  }, 50); // Slight delay to ensure CSS transition applies properly on initial load
 });
 
 // ******************************  Language switching  ******************************
@@ -379,7 +357,7 @@ let currentLang = 'en';
 function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
   sendEvent('language_toggle', { to: currentLang }); // Analytics event
-  reformulateSummary();
+  updateSummaryText();
   const langButton = document.getElementById('langToggle');
   langButton.textContent = currentLang === 'en' ? 'FR' : 'EN';
 
